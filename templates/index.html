@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CIPHER MEMORIES - Acervo de memórias humanas criptografadas">
+    <meta name="keywords" content="memórias, criptografia, segurança, privacidade, armazenamento, compartilhamento">
+    <meta name="author" content="CIPHERMEMORIES">
+    <meta name="robots" content="index, follow">
+
+
+    <title>CIPHER MEMORIES - Archive of encrypted human memories</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/static/assets/logo.svg" type="image/x-icon">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+        </script>
+
+    <!-- htmx -->
+    <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.js"
+        integrity="sha384-oeUn82QNXPuVkGCkcrInrS1twIxKhkZiFfr2TdiuObZ3n3yIeMiqcRzkIcguaof1" crossorigin="anonymous">
+        </script>
+
+    <!-- CSS INDEX-->
+    <link rel="stylesheet" href="/static/css/index.css">
+
+</head>
+
+<body class="d-flex align-items-center justify-content-center">
+    <div class="memory-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+        <div class="orb orb-5"></div>
+        <div class="orb orb-6"></div>
+        <div class="orb orb-7"></div>
+    </div>
+    <main class="container-fluid">
+        <div class="row min-vh-100 align-items-center justify-content-center">
+            <div class="col-md-8 text-center">
+                <!-- Logo -->
+                <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo mb-4" style="width: 100px; height: 100px;">
+
+                <!-- Title -->
+                <h1 class="display-4 text-white brand-text mb-4">CIPHER MEMORIES</h1>
+
+                <!-- Mysterious Tagline -->
+                <p class="lead text-white-50 mb-5">
+                    Some memories are meant to be encrypted forever
+                </p>
+
+                <!-- Minimal Action Buttons -->
+                <div class="d-flex justify-content-center gap-4">
+                    <button class="btn btn-outline-light btn-lg px-4 encrypt-btn">
+                        Encrypt Memory
+                    </button>
+                    <button class="btn btn-outline-light btn-lg px-4 decrypt-btn">
+                        Access Memory
+                    </button>
+                </div>
+
+                <!-- Mysterious Counter -->
+                <div class="mt-5 text-white-50">
+                    <small class="brand-text">
+                        <span id="memoryCount">●●●●●</span> memories encrypted
+                    </small>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>
