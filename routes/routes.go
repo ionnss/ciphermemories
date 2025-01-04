@@ -12,6 +12,6 @@ func ConfigureRoutes(r *mux.Router) {
 
 	// Serve index page
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/templates/index.html")
+		http.ServeFile(w, r, "templates/index.html")
 	})
 }

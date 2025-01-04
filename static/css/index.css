@@ -333,3 +333,30 @@ body {
         transform: translate(-10vw, 40vh) scale(0.8) rotate(540deg);
     }
 }
+
+.login-btn,
+.register-btn {
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 1px;
+}
+
+.login-btn:hover,
+.register-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.register-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000;
+}
+
+.register-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #000;
+}
