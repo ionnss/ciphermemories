@@ -14,4 +14,14 @@ func ConfigureRoutes(r *mux.Router) {
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/index.html")
 	})
+
+	// Serve login page
+	r.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/login.html")
+	})
+
+	// Serve register page
+	r.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/register.html")
+	})
 }

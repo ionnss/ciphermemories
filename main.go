@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"ciphermemories/db"
 	"ciphermemories/routes"
 
 	"github.com/gorilla/mux"
@@ -13,7 +14,18 @@ import (
 func main() {
 	fmt.Println("Hello, Memory!")
 
+	// Conectar ao banco de dados
+	conn, err := db.Connect()
+	if err != nil {
+		log.Fatal("Erro ao conectar ao banco de dados:", err)
+	}
+	defer conn.Close()
+
 	// Executar migrações
+	err = db.ExecuteMigrations(conn)
+	if err != nil {
+		log.Fatal("Erro ao executar migrações:", err)
+	}
 
 	// Configurar rotas
 	r := mux.NewRouter()

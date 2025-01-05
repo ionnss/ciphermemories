@@ -1,0 +1,362 @@
+/* Body and background */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
+.brand-text {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+html,
+body {
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    background-image:
+        /* Base escura */
+        linear-gradient(115deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)),
+
+        /* Roxo principal - movimento horizontal */
+        radial-gradient(90% 100%, rgba(76, 0, 255, 0.5), rgba(0, 0, 0, 0.8)),
+
+        /* Rosa neon - movimento diagonal */
+        radial-gradient(100% 100%, rgba(255, 0, 255, 0.2), rgba(0, 0, 0, 0.9)),
+
+        /* Azul elétrico - movimento circular */
+        radial-gradient(150% 210%, rgba(0, 255, 255, 0.15), rgba(0, 0, 0, 0.8)),
+
+        /* Índigo profundo - movimento vertical */
+        radial-gradient(100% 100%, rgba(75, 0, 130, 0.3), rgba(0, 0, 0, 0.9)),
+
+        /* Base roxa escura */
+        linear-gradient(60deg, rgba(50, 0, 80, 0.8), rgba(0, 0, 0, 1));
+
+    background-blend-mode: overlay, overlay, overlay, overlay, overlay, normal;
+    background-size: 400% 400%;
+    animation:
+        gradientBG-1 15s ease infinite,
+        gradientBG-2 20s ease-in-out infinite,
+        gradientBG-3 25s ease-in infinite,
+        gradientBG-4 18s ease-out infinite;
+    backdrop-filter: blur(10px);
+}
+
+/* Movimento horizontal */
+@keyframes gradientBG-1 {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Movimento diagonal */
+@keyframes gradientBG-2 {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+/* Movimento circular */
+@keyframes gradientBG-3 {
+    0% {
+        background-position: center;
+    }
+
+    33% {
+        background-position: right top;
+    }
+
+    66% {
+        background-position: left bottom;
+    }
+
+    100% {
+        background-position: center;
+    }
+}
+
+/* Movimento vertical */
+@keyframes gradientBG-4 {
+    0% {
+        background-position: 50% 0%;
+    }
+
+    50% {
+        background-position: 50% 100%;
+    }
+
+    100% {
+        background-position: 50% 0%;
+    }
+}
+
+/* Additional Styles */
+.logo {
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+    transition: filter 0.3s ease;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));
+}
+
+.encrypt-btn,
+.decrypt-btn {
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.encrypt-btn:hover,
+.decrypt-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+#memoryCount {
+    letter-spacing: 3px;
+    opacity: 0.5;
+}
+
+/* Orbes de Memória */
+.memory-orbs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.4;
+    mix-blend-mode: screen;
+}
+
+.orb-1 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle at 30% 30%, rgba(147, 51, 234, 0.8), rgba(147, 51, 234, 0) 70%);
+    animation: floatingOrb1 25s ease-in-out infinite;
+}
+
+.orb-2 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle at 40% 40%, rgba(0, 255, 255, 0.6), rgba(0, 255, 255, 0) 70%);
+    animation: floatingOrb2 30s ease-in-out infinite;
+}
+
+.orb-3 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 0, 255, 0.4), rgba(255, 0, 255, 0) 70%);
+    animation: floatingOrb3 35s ease-in-out infinite;
+}
+
+.orb-4 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle at 45% 45%, rgba(138, 43, 226, 0.6), rgba(138, 43, 226, 0) 65%);
+    animation: floatingOrb4 28s ease-in-out infinite;
+    opacity: 0.3;
+}
+
+.orb-5 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle at 35% 35%, rgba(123, 104, 238, 0.5), rgba(123, 104, 238, 0) 75%);
+    animation: floatingOrb5 32s ease-in-out infinite;
+    opacity: 0.25;
+}
+
+.orb-6 {
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle at 40% 40%, rgba(186, 85, 211, 0.7), rgba(186, 85, 211, 0) 70%);
+    animation: floatingOrb6 40s ease-in-out infinite;
+    opacity: 0.35;
+}
+
+.orb-7 {
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle at 40% 40%, rgba(255, 217, 0, 0.907), rgba(255, 215, 0, 0) 70%);
+    animation: floatingOrb7 38s ease-in-out infinite;
+    opacity: 0.25;
+}
+
+@keyframes floatingOrb1 {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    33% {
+        transform: translate(40vw, 20vh) rotate(120deg);
+    }
+
+    66% {
+        transform: translate(-20vw, 40vh) rotate(240deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(360deg);
+    }
+}
+
+@keyframes floatingOrb2 {
+    0% {
+        transform: translate(50vw, 0);
+    }
+
+    33% {
+        transform: translate(20vw, 40vh) rotate(-120deg);
+    }
+
+    66% {
+        transform: translate(60vw, 20vh) rotate(-240deg);
+    }
+
+    100% {
+        transform: translate(50vw, 0) rotate(-360deg);
+    }
+}
+
+@keyframes floatingOrb3 {
+    0% {
+        transform: translate(30vw, 30vh);
+    }
+
+    33% {
+        transform: translate(60vw, 60vh) rotate(120deg);
+    }
+
+    66% {
+        transform: translate(10vw, 50vh) rotate(240deg);
+    }
+
+    100% {
+        transform: translate(30vw, 30vh) rotate(360deg);
+    }
+}
+
+@keyframes floatingOrb4 {
+    0% {
+        transform: translate(-30vw, -10vh);
+    }
+
+    33% {
+        transform: translate(10vw, 30vh) rotate(-180deg);
+    }
+
+    66% {
+        transform: translate(40vw, -20vh) rotate(-360deg);
+    }
+
+    100% {
+        transform: translate(-30vw, -10vh) rotate(-540deg);
+    }
+}
+
+@keyframes floatingOrb5 {
+    0% {
+        transform: translate(70vw, 20vh) scale(1);
+    }
+
+    50% {
+        transform: translate(30vw, 50vh) scale(0.8) rotate(180deg);
+    }
+
+    100% {
+        transform: translate(70vw, 20vh) scale(1) rotate(360deg);
+    }
+}
+
+@keyframes floatingOrb6 {
+    0% {
+        transform: translate(0vw, 70vh) scale(0.9);
+    }
+
+    33% {
+        transform: translate(50vw, 30vh) scale(1.1) rotate(120deg);
+    }
+
+    66% {
+        transform: translate(20vw, 10vh) scale(0.8) rotate(240deg);
+    }
+
+    100% {
+        transform: translate(0vw, 70vh) scale(0.9) rotate(360deg);
+    }
+}
+
+@keyframes floatingOrb7 {
+    0% {
+        transform: translate(-10vw, 40vh) scale(0.8);
+    }
+
+    33% {
+        transform: translate(70vw, 60vh) scale(1.2) rotate(180deg);
+    }
+
+    66% {
+        transform: translate(30vw, 20vh) scale(0.9) rotate(360deg);
+    }
+
+    100% {
+        transform: translate(-10vw, 40vh) scale(0.8) rotate(540deg);
+    }
+}
+
+.login-btn,
+.register-btn {
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 1px;
+}
+
+.login-btn:hover,
+.register-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.register-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000;
+}
+
+.register-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #000;
+}
