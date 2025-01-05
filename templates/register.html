@@ -58,8 +58,9 @@
                         <input type="password" name="confirm_password" class="form-control btn-light" placeholder="Confirm Password" required>
                     </div>
 
-                    <button type="submit" class="btn btn-outline-light w-100 mb-3"
-                            hx-disabled-elt="this">
+                    <button type="submit" 
+                            id="registerButton"
+                            class="btn btn-outline-light w-100 mb-3">
                         Register
                         <span class="htmx-indicator ms-2">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -81,7 +82,23 @@
     </div>
 
     <script>
-        document.getElementById('registerForm').addEventListener('htmx:afterRequest', function(evt) {
+        const registerForm = document.getElementById('registerForm');
+        const registerButton = document.getElementById('registerButton');
+
+        // Desabilita o botão durante o envio
+        registerForm.addEventListener('htmx:beforeRequest', function(evt) {
+            registerButton.disabled = true;
+            registerButton.classList.add('disabled');
+        });
+
+        // Reabilita o botão após a resposta (sucesso ou erro)
+        registerForm.addEventListener('htmx:afterRequest', function(evt) {
+            // Só reabilita se não for sucesso (pois em caso de sucesso vamos redirecionar)
+            if (!evt.detail.successful) {
+                registerButton.disabled = false;
+                registerButton.classList.remove('disabled');
+            }
+
             const messageDiv = document.getElementById('message');
             messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
             
