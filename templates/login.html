@@ -22,22 +22,43 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="text-center mb-4">
-                    <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo mb-3" style="width: 80px;">
+                    <a href="/">
+                        <img src="/static/assets/logo.svg" 
+                             alt="Cipher Memories" 
+                             class="logo mb-3" 
+                             style="width: 80px;">
+                    </a>
                     <h2 class="text-white brand-text">LOGIN</h2>
                 </div>
                 
                 <form class="p-4 rounded" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
                     <div class="mb-3">
-                        <input type="email" class="form-control bg-transparent text-white" placeholder="Email" required>
+                        <input type="email" class="form-control btn-light" placeholder="Email" required>
                     </div>
                     <div class="mb-4">
-                        <input type="password" class="form-control bg-transparent text-white" placeholder="Password" required>
+                        <input type="password" class="form-control btn-light" placeholder="Password" required>
                     </div>
-                    <button type="submit" class="btn btn-outline-light w-100 mb-3">Login</button>
+                    <button type="submit" class="btn btn-outline-light w-100 mb-3"
+                            hx-get="/login-user"
+                            hx-target="body"
+                            hx-push-url="true"
+                            hx-swap="innerHTML"
+                            hx-indicator="#spinner">
+                        <span>Login</span>
+                        <span class="htmx-indicator">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </span>
+                    </button>
                     <div class="text-center">
-                        <a href="/register" class="text-white-50 text-decoration-none">Don't have an account? Register</a>
+                        <a class="text-white-50 text-decoration-none"
+                            hx-get="/register"
+                            hx-target="body"
+                            hx-push-url="true"
+                            hx-swap="innerHTML">
+                            Don't have an account? Register
+                        </a>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center mt-4">
                         <a href="/forgot-password" class="text-white-50 text-decoration-none">Forgot password?</a>
                     </div>
                 </form>

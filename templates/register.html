@@ -22,27 +22,48 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="text-center mb-4">
-                    <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo mb-3" style="width: 80px;">
+                    <a href="/">
+                        <img src="/static/assets/logo.svg" 
+                             alt="Cipher Memories" 
+                             class="logo mb-3" 
+                             style="width: 80px;">
+                    </a>
                     <h2 class="text-white brand-text">REGISTER</h2>
                 </div>
                 
                 <form class="p-4 rounded" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
                     
                     <div class="mb-3">
-                        <input type="text" class="form-control bg-transparent text-white" placeholder="Username" required>
+                        <input type="text" class="form-control btn-light" placeholder="Username" required>
                     </div>
                     <div class="mb-3">
-                        <input type="email" class="form-control bg-transparent text-white" placeholder="Email" required>
+                        <input type="email" class="form-control btn-light" placeholder="Email" required>
                     </div>
                     <div class="mb-3">
-                        <input type="password" class="form-control bg-transparent text-white" placeholder="Password" required>
+                        <input type="password" class="form-control btn-light" placeholder="Password" required>
                     </div>
                     <div class="mb-4">
-                        <input type="password" class="form-control bg-transparent text-white" placeholder="Confirm Password" required>
+                        <input type="password" class="form-control btn-light" placeholder="Confirm Password" required>
                     </div>
-                    <button type="submit" class="btn btn-outline-light w-100 mb-3">Register</button>
+                    <button type="submit" class="btn btn-outline-light w-100 mb-3"
+                            hx-get="/register-user"
+                            hx-target="body"
+                            hx-push-url="true"
+                            hx-swap="innerHTML"
+                            hx-indicator="#spinner">
+                        <span>Register</span>
+                        <span class="htmx-indicator">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </span>
+                    </button>
                     <div class="text-center">
-                        <a href="/login" class="text-white-50 text-decoration-none">Already have an account? Login</a>
+                        <a class="text-white-50 text-decoration-none"
+                            hx-get="/login"
+                            hx-target="body"
+                            hx-push-url="true"
+                            hx-swap="innerHTML">
+                            Already have an account? Login
+                        </a>
                     </div>
                 </form>
             </div>
