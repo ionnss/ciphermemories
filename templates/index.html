@@ -108,6 +108,78 @@
         </div>
     </footer>
 
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-0">
+                <div class="modal-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="mb-4">Email Verified Successfully!</h4>
+                    <p class="mb-4">Your account has been verified. You can now login and start encrypting your memories.</p>
+                    <button class="btn btn-outline-light px-4"
+                            hx-get="/login"
+                            hx-target="body"
+                            hx-push-url="true"
+                            hx-swap="innerHTML">
+                        Go to Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-0">
+                <div class="modal-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="mb-4">Verification Failed</h4>
+                    <p class="mb-4" id="errorMessage">The verification link is invalid or has expired.</p>
+                    <button class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        // Check URL parameters for verification status
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (urlParams.get('verified') === 'true') {
+            // Show success modal
+            const modal = new bootstrap.Modal(document.getElementById('verificationModal'));
+            modal.show();
+            // Clean URL
+            window.history.replaceState({}, document.title, "/");
+        } else if (urlParams.get('error')) {
+            // Show error modal with appropriate message
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            const errorMessage = document.getElementById('errorMessage');
+            
+            switch(urlParams.get('error')) {
+                case 'invalid_token':
+                    errorMessage.textContent = 'The verification link is invalid or has expired.';
+                    break;
+                case 'missing_token':
+                    errorMessage.textContent = 'Verification token is missing.';
+                    break;
+                default:
+                    errorMessage.textContent = 'An error occurred during verification. Please try again.';
+            }
+            
+            errorModal.show();
+            // Clean URL
+            window.history.replaceState({}, document.title, "/");
+        }
+    </script>
 </body>
 
 </html>

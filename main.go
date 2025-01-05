@@ -15,15 +15,13 @@ func main() {
 	fmt.Println("Hello, Memory!")
 
 	// Conectar ao banco de dados
-	conn, err := db.Connect()
-	if err != nil {
+	if err := db.Connect(); err != nil {
 		log.Fatal("Erro ao conectar ao banco de dados:", err)
 	}
-	defer conn.Close()
+	defer db.DB.Close()
 
 	// Executar migrações
-	err = db.ExecuteMigrations(conn)
-	if err != nil {
+	if err := db.ExecuteMigrations(db.DB); err != nil {
 		log.Fatal("Erro ao executar migrações:", err)
 	}
 

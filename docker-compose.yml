@@ -1,6 +1,8 @@
 services:
   app:
     build: .
+    ports:
+      - "8080:8080"
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -8,10 +10,13 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - SESSION_KEY=${SESSION_KEY}
-      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
+      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_ENCRYPTION=${SMTP_ENCRYPTION}
     volumes:
       - .:/app
       - ./templates:/ciphermemories/templates

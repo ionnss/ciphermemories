@@ -15,7 +15,7 @@ import (
 	_ "github.com/lib/pq" // Driver PostgreSQL
 )
 
-// DB é a conexão com o banco de dados
+// DB é a conexão global com o banco de dados
 var DB *sql.DB
 
 // Connect inicializa e retorna uma conexão com o banco de dados.
@@ -28,9 +28,8 @@ var DB *sql.DB
 //   - DB_NAME: nome do banco
 //
 // Retorna:
-//   - *sql.DB: conexão com o banco
 //   - error: erro se a conexão falhar
-func Connect() (*sql.DB, error) {
+func Connect() error {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
@@ -43,16 +42,18 @@ func Connect() (*sql.DB, error) {
 	// Tenta conectar ao banco de dados
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("erro ao conectar ao banco: %v", err)
 	}
 
 	// Verifica se a conexão está funcionando
 	if err = db.Ping(); err != nil {
-		return nil, err
+		return fmt.Errorf("erro ao pingar o banco: %v", err)
 	}
 
-	// Retorna a conexão com o banco de dados
-	return db, nil
+	// Atribui a conexão à variável global
+	DB = db
+
+	return nil
 }
 
 // ExecuteMigrations executa os scripts de migração e cria as tabelas no banco
