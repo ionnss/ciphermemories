@@ -31,7 +31,6 @@ ciphermemories.com, www.ciphermemories.com {
 
     # Proxy reverso para a aplicação Go
     reverse_proxy app:8080
-    redir http://ciphermemories.com https://ciphermemories.com
 
     # Log de acesso
     log {
