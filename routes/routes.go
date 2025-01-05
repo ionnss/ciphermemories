@@ -33,7 +33,7 @@ func ConfigureRoutes(r *mux.Router) {
 	protected.Use(handlers.AuthMiddleware)
 
 	// Protected actions
-	protected.HandleFunc("/dashboard", handlers.DashboardPage).Methods("GET")
-	protected.HandleFunc("/profile", handlers.ProfilePage).Methods("GET")
-	protected.HandleFunc("/logout", handlers.LogoutUser).Methods("POST")
+	//protected.HandleFunc("/dashboard", handlers.DashboardPage).Methods("GET")
+	//protected.HandleFunc("/profile", handlers.ProfilePage).Methods("GET")
+	//protected.HandleFunc("/logout", handlers.LogoutUser).Methods("POST")
 }
