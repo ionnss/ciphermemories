@@ -43,7 +43,7 @@ body {
         gradientBG-2 20s ease-in-out infinite,
         gradientBG-3 25s ease-in infinite,
         gradientBG-4 18s ease-out infinite;
-    backdrop-filter: blur(30px);
+    backdrop-filter: blur(10px);
 }
 
 /* Movimento horizontal */

@@ -1,5 +1,5 @@
 # Em desenvolvimento, use localhost
-localhost {
+ciphermemories.com, www.ciphermemories.com {
     # Habilita compressão Gzip
     encode gzip
 
@@ -31,6 +31,7 @@ localhost {
 
     # Proxy reverso para a aplicação Go
     reverse_proxy app:8080
+    redir http://ciphermemories.com https://ciphermemories.com
 
     # Log de acesso
     log {
