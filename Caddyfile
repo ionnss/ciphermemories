@@ -29,8 +29,13 @@ localhost {
     }
 }
 
-# Em produção, use seu domínio
-ciphermemories.com, www.ciphermemories.com {
+# Redirecionamento de www para non-www
+www.ciphermemories.com {
+    redir https://ciphermemories.com{uri} permanent
+}
+
+# Configuração principal do domínio
+ciphermemories.com {
     encode gzip
 
     header {
