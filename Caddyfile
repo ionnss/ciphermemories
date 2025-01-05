@@ -1,21 +1,13 @@
 # Em desenvolvimento, use localhost
-ciphermemories.com, www.ciphermemories.com {
-    # Habilita compressão Gzip
+localhost {
     encode gzip
 
-    # Configurações de segurança
     header {
-        # Previne clickjacking
         X-Frame-Options "SAMEORIGIN"
-        # Previne MIME sniffing
         X-Content-Type-Options "nosniff"
-        # Habilita XSS filter
         X-XSS-Protection "1; mode=block"
-        # Strict Transport Security
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
-        # Referrer Policy
         Referrer-Policy "strict-origin-when-cross-origin"
-        # Content Security Policy atualizada
         Content-Security-Policy "
             default-src 'self' https:;
             script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com;
@@ -29,10 +21,8 @@ ciphermemories.com, www.ciphermemories.com {
         "
     }
 
-    # Proxy reverso para a aplicação Go
     reverse_proxy app:8080
 
-    # Log de acesso
     log {
         output file /var/log/caddy/access.log
         format json
@@ -40,7 +30,32 @@ ciphermemories.com, www.ciphermemories.com {
 }
 
 # Em produção, use seu domínio
-# exemplo.com {
-#     # Mesmas configurações acima
-#     reverse_proxy app:8080
-# } 
+ciphermemories.com, www.ciphermemories.com {
+    encode gzip
+
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        X-XSS-Protection "1; mode=block"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Content-Security-Policy "
+            default-src 'self' https:;
+            script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com;
+            style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+            img-src 'self' data: https:;
+            font-src 'self' data: https:;
+            connect-src 'self';
+            frame-src 'self';
+            frame-ancestors 'self';
+            form-action 'self';
+        "
+    }
+
+    reverse_proxy app:8080
+
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+}
