@@ -139,3 +139,41 @@ func SanitizeInput(input string) string {
 
 	return input
 }
+
+// SecurityMiddleware adiciona headers de segurança para todas as respostas
+func SecurityMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Previne Clickjacking
+		w.Header().Set("X-Frame-Options", "DENY")
+
+		// Previne MIME-sniffing
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+
+		// Habilita proteção XSS no navegador
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+
+		// Força HTTPS
+		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+
+		// Content Security Policy
+		w.Header().Set("Content-Security-Policy",
+			"default-src 'self'; "+
+				"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net; "+
+				"style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "+
+				"img-src 'self' data: https:; "+
+				"font-src 'self' https://cdn.jsdelivr.net; "+
+				"connect-src 'self';")
+
+		// Referrer Policy
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+
+		// Permissions Policy (anteriormente Feature-Policy)
+		w.Header().Set("Permissions-Policy",
+			"camera=(), "+
+				"microphone=(), "+
+				"geolocation=(), "+
+				"payment=()")
+
+		next.ServeHTTP(w, r)
+	})
+}
