@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -15,6 +16,11 @@ type RegisterResponse struct {
 	Message string `json:"message"`
 }
 
+// RegisterUser handles user registration
+//
+// receives: w http.ResponseWriter, r *http.Request
+//
+// returns: void
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	// Set response header
 	w.Header().Set("Content-Type", "application/json")
@@ -145,6 +151,11 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// VerifyEmail verifies the user's email
+//
+// receives: w http.ResponseWriter, r *http.Request
+//
+// returns: void
 func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	// Get token from query params
 	token := r.URL.Query().Get("token")
@@ -184,8 +195,131 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/?verified=true", http.StatusSeeOther)
 }
 
+// LoginUser handles user login
+type LoginResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+// LoginUser handles user login
+//
+// receives: w http.ResponseWriter, r *http.Request
+//
+// returns: void
 func LoginUser(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement login
+	// Set response header
+	w.Header().Set("Content-Type", "application/json")
+
+	// Only allow POST method
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(LoginResponse{
+			Success: false,
+			Message: "Method not allowed",
+		})
+		return
+	}
+
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(LoginResponse{
+			Success: false,
+			Message: "Invalid form data",
+		})
+		return
+	}
+
+	// Get and sanitize form values
+	email := SanitizeInput(strings.ToLower(r.FormValue("email")))
+	password := r.FormValue("password")
+
+	// Validate input
+	if !validateEmail(email) {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(LoginResponse{
+			Success: false,
+			Message: "Invalid email format",
+		})
+		return
+	}
+
+	// Get user from database
+	var user struct {
+		ID             int
+		Username       string
+		HashedPassword string
+		VerifiedEmail  bool
+	}
+
+	err := db.DB.QueryRow(`
+		SELECT id, username, hashed_password, verified_email 
+		FROM users 
+		WHERE email = $1
+	`, email).Scan(&user.ID, &user.Username, &user.HashedPassword, &user.VerifiedEmail)
+
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(LoginResponse{
+			Success: false,
+			Message: "Invalid email or password",
+		})
+		return
+	}
+
+	// Verify password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(password)); err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(LoginResponse{
+			Success: false,
+			Message: "Invalid email or password",
+		})
+		return
+	}
+
+	// Check if email is verified
+	if !user.VerifiedEmail {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(LoginResponse{
+			Success: false,
+			Message: "Please verify your email before logging in",
+		})
+		return
+	}
+
+	// Create session
+	session, err := Store.Get(r, "session-name")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(LoginResponse{
+			Success: false,
+			Message: "Error creating session",
+		})
+		return
+	}
+
+	// Set session values
+	session.Values["authenticated"] = true
+	session.Values["user_id"] = user.ID
+	session.Values["username"] = user.Username
+	session.Values["last_activity"] = time.Now().Unix()
+
+	// Save session
+	if err := session.Save(r, w); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(LoginResponse{
+			Success: false,
+			Message: "Error saving session",
+		})
+		return
+	}
+
+	// Return success
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(LoginResponse{
+		Success: true,
+		Message: "Login successful",
+	})
 }
 
 func LogoutUser(w http.ResponseWriter, r *http.Request) {
