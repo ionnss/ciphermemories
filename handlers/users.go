@@ -46,8 +46,8 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get form values
-	email := strings.TrimSpace(strings.ToLower(r.FormValue("email")))
-	username := strings.TrimSpace(r.FormValue("username"))
+	email := SanitizeInput(strings.TrimSpace(strings.ToLower(r.FormValue("email"))))
+	username := SanitizeInput(strings.TrimSpace(r.FormValue("username")))
 	password := r.FormValue("password")
 
 	// Validate input
