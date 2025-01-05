@@ -31,21 +31,23 @@
                     <h2 class="text-white brand-text">LOGIN</h2>
                 </div>
                 
-                <form class="p-4 rounded" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
+                <form id="loginForm" class="p-4 rounded" 
+                    style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);"
+                    hx-get="/login"
+                    hx-target="#message"
+                    hx-swap="innerHTML">
+
                     <div class="mb-3">
                         <input type="email" class="form-control btn-light" placeholder="Email" required>
                     </div>
                     <div class="mb-4">
                         <input type="password" class="form-control btn-light" placeholder="Password" required>
                     </div>
-                    <button type="submit" class="btn btn-outline-light w-100 mb-3"
-                            hx-get="/login"
-                            hx-target="body"
-                            hx-push-url="true"
-                            hx-swap="innerHTML"
-                            hx-indicator="#spinner">
-                        <span>Login</span>
-                        <span class="htmx-indicator">
+                    <button type="submit"
+                            id="submit"
+                            class="btn btn-outline-light w-100 mb-3">
+                        Login
+                        <span class="htmx-indicator ms-2">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </span>
                     </button>
