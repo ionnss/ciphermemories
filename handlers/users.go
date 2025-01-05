@@ -123,9 +123,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send verification email
-	verificationURL := fmt.Sprintf("https://%s/verify?token=%s",
-		r.Host,
-		verificationToken)
+	verificationURL := fmt.Sprintf("https://ciphermemories.com/verify?token=%s", verificationToken)
 
 	emailData := &EmailData{
 		Title:      "Welcome to Cipher Memories - Verify Your Email",
