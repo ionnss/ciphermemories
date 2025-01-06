@@ -91,8 +91,6 @@
                 
                 if (response.success) {
                     messageDiv.classList.add('alert-success');
-                    // Se o login foi bem sucedido, redireciona para dashboard
-                    window.location.href = '/dashboard';
                 } else {
                     messageDiv.classList.add('alert-danger');
                     loginButton.disabled = false;

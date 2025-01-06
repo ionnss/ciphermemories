@@ -53,3 +53,13 @@ func PrivacyPage(w http.ResponseWriter, r *http.Request) {
 	}
 	http.ServeFile(w, r, "templates/privacy.html")
 }
+
+// DashboardPage serves the dashboard page/partial
+func DashboardPage(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an HTMX request
+	if r.Header.Get("HX-Request") == "true" {
+		http.ServeFile(w, r, "templates/dashboard.html")
+		return
+	}
+	http.ServeFile(w, r, "templates/dashboard.html")
+}

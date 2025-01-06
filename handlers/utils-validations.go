@@ -15,6 +15,9 @@ import (
 // Store é a sessão do usuário
 var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
+// init is a function that runs when the package is initialized
+//
+// returns: error
 func init() {
 	// Configuração segura para o cookie de sessão
 	Store.Options = &sessions.Options{
@@ -26,7 +29,11 @@ func init() {
 	}
 }
 
-// AuthHandler verifica se o usuário está autenticado
+// AuthHandler verifies if the user is authenticated
+//
+// receives: w http.ResponseWriter, r *http.Request
+//
+// returns: error
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := Store.Get(r, "session-name")
 	if err != nil {
@@ -41,7 +48,11 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AuthMiddleware protege rotas que precisam de autenticação
+// AuthMiddleware protects routes that need authentication
+//
+// receives: next http.Handler
+//
+// returns: http.Handler
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, err := Store.Get(r, "session-name")
@@ -74,7 +85,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// GenerateVerificationToken gera um token único para verificação de email
+// GenerateVerificationToken generates a unique token for email verification
 //
 // returns: token, error
 func generateVerificationToken() (string, error) {
@@ -86,9 +97,9 @@ func generateVerificationToken() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-// ValidateEmail verifica se o email está em um formato válido
+// ValidateEmail verifies if the email is in a valid format
 //
-// receives: email
+// receives: email string
 //
 // returns: true if email is valid, false otherwise
 func validateEmail(email string) bool {
@@ -97,9 +108,9 @@ func validateEmail(email string) bool {
 	return emailRegex.MatchString(email)
 }
 
-// ValidateUsername verifica se o username está em um formato válido
+// ValidateUsername verifies if the username is in a valid format
 //
-// receives: username
+// receives: username string
 //
 // returns: true if username is valid, false otherwise
 func validateUsername(username string) bool {
@@ -111,7 +122,11 @@ func validateUsername(username string) bool {
 	return usernameRegex.MatchString(username)
 }
 
-// ValidatePassword verifica se a senha atende aos requisitos mínimos
+// ValidatePassword verifies if the password meets the minimum requirements
+//
+// receives: password string
+//
+// returns: true if password is valid, false otherwise
 func validatePassword(password string) bool {
 	if len(password) < 8 {
 		return false
@@ -129,9 +144,13 @@ func validatePassword(password string) bool {
 	return hasUpper && hasLower && hasNumber && hasSpecial
 }
 
-// SanitizeInput remove caracteres perigosos de uma string
+// SanitizeInput removes dangerous characters from a string
+//
+// receives: input string
+//
+// returns: sanitized string
 func SanitizeInput(input string) string {
-	// Remove espaços extras
+	// Remove extra spaces
 	input = strings.TrimSpace(input)
 
 	// Remove caracteres de controle
@@ -140,19 +159,23 @@ func SanitizeInput(input string) string {
 	return input
 }
 
-// SecurityMiddleware adiciona headers de segurança para todas as respostas
+// SecurityMiddleware adds security headers to all responses
+//
+// receives: next http.Handler
+//
+// returns: http.Handler
 func SecurityMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Previne Clickjacking
+		// Prevents Clickjacking
 		w.Header().Set("X-Frame-Options", "DENY")
 
-		// Previne MIME-sniffing
+		// Prevents MIME-sniffing
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 
-		// Habilita proteção XSS no navegador
+		// Enables XSS protection in the browser
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 
-		// Força HTTPS
+		// Forces HTTPS
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 
 		// Content Security Policy
@@ -176,4 +199,41 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// HTMXMiddleware verifies if the request is via HTMX
+//
+// receives: next http.Handler
+//
+// returns: http.Handler
+func HTMXMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// If it's not an HTMX request and it's a route that should be HTMX-only
+		if r.Header.Get("HX-Request") != "true" && isHTMXOnlyRoute(r.URL.Path) {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// isHTMXOnlyRoute verifies if the route should be accessed only via HTMX
+//
+// receives: path string
+//
+// returns: true if the route should be accessed only via HTMX, false otherwise
+func isHTMXOnlyRoute(path string) bool {
+	htmxOnlyRoutes := []string{
+		"/login",
+		"/register",
+		"/terms",
+		"/privacy",
+	}
+
+	for _, route := range htmxOnlyRoutes {
+		if route == path {
+			return true
+		}
+	}
+	return false
 }

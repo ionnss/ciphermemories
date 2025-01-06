@@ -11,6 +11,9 @@ func ConfigureRoutes(r *mux.Router) {
 	// Serve static files
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
+	// Aplica o middleware HTMX em todas as rotas
+	r.Use(handlers.HTMXMiddleware)
+
 	// Rotas públicas com SecurityMiddleware
 	public := r.PathPrefix("").Subrouter()
 	public.Use(handlers.SecurityMiddleware)
@@ -33,7 +36,7 @@ func ConfigureRoutes(r *mux.Router) {
 	protected.Use(handlers.AuthMiddleware)
 
 	// Protected actions
-	//protected.HandleFunc("/dashboard", handlers.DashboardPage).Methods("GET")
+	protected.HandleFunc("/dashboard", handlers.DashboardPage).Methods("GET")
 	//protected.HandleFunc("/profile", handlers.ProfilePage).Methods("GET")
 	//protected.HandleFunc("/logout", handlers.LogoutUser).Methods("POST")
 }

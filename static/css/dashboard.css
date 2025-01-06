@@ -1,0 +1,169 @@
+/* Import Montserrat font */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
+/* General styles */
+body {
+    background-color: #0a0a0a;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: #1a1a1a;
+    border-right: 1px solid #2d2d2d;
+    height: 100vh;
+    position: fixed;
+    width: 70px;
+    padding: 1rem 0;
+}
+
+.logo-link {
+    display: block;
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+}
+
+.nav-link {
+    color: #ffffff;
+    padding: 0.8rem 0;
+    margin: 0.2rem 0;
+    text-align: center;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    margin: 0.5rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-link i {
+    font-size: 1.3rem;
+}
+
+.nav-link:hover {
+    background-color: #2d1a4a;
+    color: #ffffff;
+}
+
+.nav-link.active {
+    background-color: #4a2b8a;
+    color: #ffffff;
+}
+
+.profile-link {
+    margin-top: 1rem;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 70px;
+    padding: 2rem;
+}
+
+/* Create Memory Card */
+.create-memory-card {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+.create-memory-card .card {
+    background-color: #1a1a1a;
+    border: 1px solid #2d2d2d;
+    border-radius: 15px;
+}
+
+.create-memory-card textarea {
+    background-color: #1a1a1a;
+    border: none;
+    color: #ffffff;
+    resize: none;
+    font-size: 1.1rem;
+}
+
+.create-memory-card textarea:focus {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #4a2b8a;
+    border-color: #4a2b8a;
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+}
+
+.btn-primary:hover {
+    background-color: #5c37a9;
+    border-color: #5c37a9;
+}
+
+.btn-icon {
+    color: #ffffff;
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    color: #4a2b8a;
+}
+
+/* Dropdown */
+.dropdown-menu {
+    background-color: #1a1a1a;
+    border: 1px solid #2d2d2d;
+    border-radius: 15px;
+    margin-top: 0.5rem;
+}
+
+.dropdown-item {
+    color: #ffffff;
+    padding: 0.7rem 1rem;
+}
+
+.dropdown-item:hover {
+    background-color: #2d1a4a;
+    color: #ffffff;
+}
+
+.dropdown-divider {
+    border-top: 1px solid #2d2d2d;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4a2b8a;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #5c37a9;
+} 

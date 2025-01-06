@@ -110,7 +110,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(err.Error(), "duplicate key") {
 			w.WriteHeader(http.StatusConflict)
 			message := "Email already registered"
-			if strings.Contains(err.Error(), "idx_username") {
+			if strings.Contains(err.Error(), "users_username_key") {
 				message = "Username already taken"
 			}
 			json.NewEncoder(w).Encode(RegisterResponse{
@@ -197,8 +197,9 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 // LoginUser handles user login
 type LoginResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
+	Success     bool   `json:"success"`
+	Message     string `json:"message"`
+	RedirectURL string `json:"redirect_url"`
 }
 
 // LoginUser handles user login
@@ -314,11 +315,12 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return success
+	// Return success with redirect URL
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(LoginResponse{
-		Success: true,
-		Message: "Login successful",
+		Success:     true,
+		Message:     "Login successful",
+		RedirectURL: "/dashboard",
 	})
 }
 
