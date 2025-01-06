@@ -38,9 +38,8 @@
 
                 <form id="loginForm" class="p-4 rounded" 
                     style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);"
-                    hx-post="/login"
-                    hx-target="#message"
-                    hx-swap="innerHTML">
+                    method="POST"
+                    action="/login">
 
                     <div class="mb-3">
                         <input type="email" name="email" class="form-control btn-light" placeholder="Email" required>
@@ -69,54 +68,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        const loginForm = document.getElementById('loginForm');
-        const loginButton = document.getElementById('loginButton');
-
-        // Desabilita o botão durante o envio
-        loginForm.addEventListener('htmx:beforeRequest', function(evt) {
-            loginButton.disabled = true;
-            loginButton.classList.add('disabled');
-        });
-
-        // Reabilita o botão após a resposta (sucesso ou erro)
-        loginForm.addEventListener('htmx:afterRequest', function(evt) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
-            
-            try {
-                // Tenta fazer o parse da resposta
-                const response = JSON.parse(evt.detail.xhr.response);
-                
-                if (response.success) {
-                    messageDiv.classList.add('alert-success');
-                } else {
-                    messageDiv.classList.add('alert-danger');
-                    loginButton.disabled = false;
-                    loginButton.classList.remove('disabled');
-                }
-                
-                messageDiv.textContent = response.message;
-            } catch (error) {
-                // Se houver erro no parse do JSON, mostra mensagem genérica
-                messageDiv.classList.add('alert-danger');
-                messageDiv.textContent = 'An error occurred. Please try again later.';
-                loginButton.disabled = false;
-                loginButton.classList.remove('disabled');
-                console.error('Error parsing response:', error);
-            }
-        });
-
-        // Adiciona handler para erros de rede/servidor
-        loginForm.addEventListener('htmx:error', function(evt) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.classList.remove('d-none');
-            messageDiv.classList.add('alert-danger');
-            messageDiv.textContent = 'Server error. Please try again later.';
-            loginButton.disabled = false;
-            loginButton.classList.remove('disabled');
-        });
-    </script>
 </body>
 </html>

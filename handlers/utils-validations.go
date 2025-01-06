@@ -35,7 +35,7 @@ func init() {
 //
 // returns: error
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := Store.Get(r, "session-name")
+	session, err := Store.Get(r, "session-ciphermemories")
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -55,7 +55,7 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 // returns: http.Handler
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, err := Store.Get(r, "session-name")
+		session, err := Store.Get(r, "session-ciphermemories")
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
@@ -182,9 +182,9 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("Content-Security-Policy",
 			"default-src 'self'; "+
 				"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net; "+
-				"style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "+
+				"style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; "+
 				"img-src 'self' data: https:; "+
-				"font-src 'self' https://cdn.jsdelivr.net; "+
+				"font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com https://cdnjs.cloudflare.com; "+
 				"connect-src 'self';")
 
 		// Referrer Policy
@@ -208,8 +208,8 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 // returns: http.Handler
 func HTMXMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// If it's not an HTMX request and it's a route that should be HTMX-only
-		if r.Header.Get("HX-Request") != "true" && isHTMXOnlyRoute(r.URL.Path) {
+		// Only check GET requests for HTMX routes
+		if r.Method == http.MethodGet && r.Header.Get("HX-Request") != "true" && isHTMXOnlyRoute(r.URL.Path) {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}

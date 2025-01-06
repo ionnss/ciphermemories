@@ -208,26 +208,15 @@ type LoginResponse struct {
 //
 // returns: void
 func LoginUser(w http.ResponseWriter, r *http.Request) {
-	// Set response header
-	w.Header().Set("Content-Type", "application/json")
-
 	// Only allow POST method
 	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(LoginResponse{
-			Success: false,
-			Message: "Method not allowed",
-		})
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
 	// Parse form data
 	if err := r.ParseForm(); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(LoginResponse{
-			Success: false,
-			Message: "Invalid form data",
-		})
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
 		return
 	}
 
@@ -237,11 +226,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	// Validate input
 	if !validateEmail(email) {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(LoginResponse{
-			Success: false,
-			Message: "Invalid email format",
-		})
+		http.Error(w, "Invalid email format", http.StatusBadRequest)
 		return
 	}
 
@@ -260,42 +245,26 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	`, email).Scan(&user.ID, &user.Username, &user.HashedPassword, &user.VerifiedEmail)
 
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(LoginResponse{
-			Success: false,
-			Message: "Invalid email or password",
-		})
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
 	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(password)); err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(LoginResponse{
-			Success: false,
-			Message: "Invalid email or password",
-		})
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
 	// Check if email is verified
 	if !user.VerifiedEmail {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(LoginResponse{
-			Success: false,
-			Message: "Please verify your email before logging in",
-		})
+		http.Error(w, "Please verify your email before logging in", http.StatusUnauthorized)
 		return
 	}
 
 	// Create session
-	session, err := Store.Get(r, "session-name")
+	session, err := Store.Get(r, "session-ciphermemories")
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(LoginResponse{
-			Success: false,
-			Message: "Error creating session",
-		})
+		http.Error(w, "Error creating session", http.StatusInternalServerError)
 		return
 	}
 
@@ -307,21 +276,12 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	// Save session
 	if err := session.Save(r, w); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(LoginResponse{
-			Success: false,
-			Message: "Error saving session",
-		})
+		http.Error(w, "Error saving session", http.StatusInternalServerError)
 		return
 	}
 
-	// Return success with redirect URL
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(LoginResponse{
-		Success:     true,
-		Message:     "Login successful",
-		RedirectURL: "/dashboard",
-	})
+	// Redirect to dashboard
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
 func LogoutUser(w http.ResponseWriter, r *http.Request) {

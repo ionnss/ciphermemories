@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"ciphermemories/db"
+	"html/template"
 	"net/http"
 )
 
@@ -56,10 +58,49 @@ func PrivacyPage(w http.ResponseWriter, r *http.Request) {
 
 // DashboardPage serves the dashboard page/partial
 func DashboardPage(w http.ResponseWriter, r *http.Request) {
-	// Check if it's an HTMX request
-	if r.Header.Get("HX-Request") == "true" {
-		http.ServeFile(w, r, "templates/dashboard.html")
+	// Get user data from session
+	session, _ := Store.Get(r, "session-ciphermemories")
+	userID := session.Values["user_id"].(int)
+
+	// Get user data from database
+	var user struct {
+		ID        int
+		Username  string
+		AvatarURL string
+	}
+
+	err := db.DB.QueryRow(`
+		SELECT id, username, COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url
+		FROM users 
+		WHERE id = $1
+	`, userID).Scan(&user.ID, &user.Username, &user.AvatarURL)
+
+	if err != nil {
+		http.Error(w, "Error loading user data", http.StatusInternalServerError)
 		return
 	}
-	http.ServeFile(w, r, "templates/dashboard.html")
+
+	// Parse template
+	tmpl, err := template.ParseFiles("templates/dashboard.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	// Execute template with user data
+	data := struct {
+		User struct {
+			ID        int
+			Username  string
+			AvatarURL string
+		}
+	}{
+		User: user,
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
 }
