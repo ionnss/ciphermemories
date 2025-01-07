@@ -1,14 +1,19 @@
 package handlers
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gorilla/sessions"
 )
 
@@ -19,13 +24,20 @@ var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 //
 // returns: error
 func init() {
+	// Verifica se a chave da sessão está definida
+	if os.Getenv("SESSION_KEY") == "" {
+		panic("SESSION_KEY environment variable is not set")
+	}
+
+	fmt.Printf("Session store initialized with key length: %d\n", len(os.Getenv("SESSION_KEY")))
+
 	// Configuração segura para o cookie de sessão
 	Store.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 7, // 7 dias
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 	}
 }
 
@@ -57,13 +69,21 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, err := Store.Get(r, "session-ciphermemories")
 		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			if r.Header.Get("HX-Request") == "true" {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			} else {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+			}
 			return
 		}
 
 		// Verifica se o usuário está autenticado
 		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			if r.Header.Get("HX-Request") == "true" {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			} else {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+			}
 			return
 		}
 
@@ -72,7 +92,11 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			if time.Now().Unix()-lastActivity > 3600 { // 1 hora
 				session.Options.MaxAge = -1
 				session.Save(r, w)
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				if r.Header.Get("HX-Request") == "true" {
+					http.Error(w, "Session expired", http.StatusUnauthorized)
+				} else {
+					http.Redirect(w, r, "/login", http.StatusSeeOther)
+				}
 				return
 			}
 		}
@@ -236,4 +260,41 @@ func isHTMXOnlyRoute(path string) bool {
 		}
 	}
 	return false
+}
+
+func UploadToCloudinary(file io.Reader) (string, error) {
+	fmt.Printf("UploadToCloudinary: starting upload\n")
+
+	// Pegar URL do Cloudinary do .env
+	cloudinaryURL := os.Getenv("CLOUDINARY_URL")
+	if cloudinaryURL == "" {
+		return "", fmt.Errorf("CLOUDINARY_URL environment variable is not set")
+	}
+	fmt.Printf("UploadToCloudinary: got Cloudinary URL\n")
+
+	// Criar cliente Cloudinary
+	cld, err := cloudinary.NewFromURL(cloudinaryURL)
+	if err != nil {
+		fmt.Printf("UploadToCloudinary failed: error creating client: %v\n", err)
+		return "", err
+	}
+	fmt.Printf("UploadToCloudinary: client created successfully\n")
+
+	// Fazer upload
+	fmt.Printf("UploadToCloudinary: attempting upload to profiles folder\n")
+	uploadResult, err := cld.Upload.Upload(
+		context.Background(),
+		file,
+		uploader.UploadParams{
+			Folder: "profiles",
+		},
+	)
+
+	if err != nil {
+		fmt.Printf("UploadToCloudinary failed: error uploading: %v\n", err)
+		return "", err
+	}
+	fmt.Printf("UploadToCloudinary: upload successful - URL: %s\n", uploadResult.SecureURL)
+
+	return uploadResult.SecureURL, nil
 }

@@ -1,0 +1,40 @@
+# General
+app_name: "CIPHER MEMORIES"
+app_description: "Archive of encrypted human memories"
+
+# Auth
+login:
+  title: "LOGIN"
+  email: "Email"
+  password: "Password"
+  submit: "Login"
+  register_link: "Don't have an account? Register"
+  forgot_password: "Forgot password?"
+
+register:
+  title: "REGISTER"
+  username: "Username"
+  email: "Email"
+  password: "Password"
+  submit: "Register"
+  login_link: "Already have an account? Login"
+
+# Dashboard
+dashboard:
+  title: "Dashboard"
+  share_memory: "Share a memory..."
+  encrypt_memory: "Encrypt Memory"
+  access_memory: "Access Memory"
+  add_image: "Add Image"
+  encrypt: "Encrypt"
+
+# Navigation
+nav:
+  feed: "Feed"
+  explore: "Explore"
+  memories: "My Memories"
+  encrypted: "Encrypted Memories"
+  marketplace: "Marketplace"
+  settings: "Settings"
+  profile: "Profile"
+  logout: "Logout"

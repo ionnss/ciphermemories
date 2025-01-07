@@ -7,104 +7,50 @@
     
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- htmx -->
-    <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.js"></script>
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/sidebar.css">
     <link rel="stylesheet" href="/static/css/dashboard.css">
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.js"></script>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="d-flex flex-column h-100">
-                    <!-- Logo -->
-                    <a href="/dashboard" class="logo-link mb-4">
-                        <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo">
-                    </a>
+    {{template "sidebar" .}}
 
-                    <!-- Navigation Icons -->
-                    <nav class="nav flex-column mb-auto">
-                        <a href="/dashboard" class="nav-link active" title="Feed">
-                            <i class="fas fa-home"></i>
-                        </a>
-                        <a href="/explore" class="nav-link" title="Explore">
-                            <i class="fas fa-search"></i>
-                        </a>
-                        <a href="/memories" class="nav-link" title="My Memories">
-                            <i class="fas fa-book"></i>
-                        </a>
-                        <a href="/encrypted" class="nav-link" title="Encrypted Memories">
-                            <i class="fas fa-lock"></i>
-                        </a>
-                        <a href="/marketplace" class="nav-link" title="Marketplace">
-                            <i class="fas fa-store"></i>
-                        </a>
-                    </nav>
-
-                    <!-- Settings and Profile -->
-                    <div class="mt-auto">
-                        <a href="/settings" class="nav-link" title="Settings">
-                            <i class="fas fa-cog"></i>
-                        </a>
-                        <div class="dropdown">
-                            <a class="nav-link profile-link" href="#" data-bs-toggle="dropdown">
-                                <img src="{{.User.AvatarURL}}" 
-                                     alt="Profile" 
-                                     class="rounded-circle profile-img">
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="/profile">Profile</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="/logout" method="POST">
-                                        <button type="submit" class="dropdown-item">Logout</button>
-                                    </form>
-                                </li>
-                            </ul>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Create Memory -->
+        <div class="create-memory-card">
+            <div class="card">
+                <div class="card-body">
+                    <form id="createMemoryForm" hx-post="/memories/create">
+                        <textarea class="form-control mb-3" 
+                                  name="content" 
+                                  placeholder="Share a memory..."
+                                  rows="3"></textarea>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-icon" title="Add Image">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                                <button type="button" class="btn btn-icon" title="Encrypt">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Share Memory</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Main Content -->
-            <main class="main-content">
-                <!-- Create Memory -->
-                <div class="create-memory-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <form id="createMemoryForm" hx-post="/memories/create">
-                                <textarea class="form-control mb-3" 
-                                          name="content" 
-                                          placeholder="Share a memory..."
-                                          rows="3"></textarea>
-                                
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-icon" title="Add Image">
-                                            <i class="fas fa-image"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-icon" title="Encrypt">
-                                            <i class="fas fa-lock"></i>
-                                        </button>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Share Memory</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Memories Feed -->
-                <div id="memoriesFeed">
-                    <!-- Memories will be loaded here -->
-                </div>
-            </main>
         </div>
-    </div>
 
+        <!-- Memories Feed -->
+        <div id="memoriesFeed">
+            <!-- Memories will be loaded here -->
+        </div>
+    </main>
 </body>
 </html>

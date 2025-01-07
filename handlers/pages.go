@@ -2,9 +2,18 @@ package handlers
 
 import (
 	"ciphermemories/db"
+	"fmt"
 	"html/template"
 	"net/http"
 )
+
+var pageTemplates *template.Template
+
+func init() {
+	// Initialize templates
+	pageTemplates = template.Must(template.ParseGlob("templates/*.html"))
+	template.Must(pageTemplates.ParseGlob("templates/partials/*.html"))
+}
 
 // IndexPage serves the main page
 func IndexPage(w http.ResponseWriter, r *http.Request) {
@@ -80,27 +89,35 @@ func DashboardPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse template
-	tmpl, err := template.ParseFiles("templates/dashboard.html")
-	if err != nil {
-		http.Error(w, "Error loading template", http.StatusInternalServerError)
-		return
-	}
-
 	// Execute template with user data
-	data := struct {
-		User struct {
-			ID        int
-			Username  string
-			AvatarURL string
-		}
-	}{
-		User: user,
+	data := map[string]interface{}{
+		"ViewingUser": user,
+		"CurrentPage": "dashboard",
 	}
 
-	err = tmpl.Execute(w, data)
+	err = pageTemplates.ExecuteTemplate(w, "dashboard.html", data)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
+}
+
+// RenderTemplate renders a partial template with the given data
+func RenderTemplate(w http.ResponseWriter, templateName string, data interface{}) {
+	fmt.Printf("RenderTemplate: rendering %s with data: %+v\n", templateName, data)
+
+	tmpl, err := template.ParseFiles("templates/partials/" + templateName + ".html")
+	if err != nil {
+		fmt.Printf("RenderTemplate failed: error parsing template: %v\n", err)
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		fmt.Printf("RenderTemplate failed: error executing template: %v\n", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+	fmt.Printf("RenderTemplate: completed successfully\n")
 }
