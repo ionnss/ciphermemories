@@ -112,7 +112,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 // GenerateVerificationToken generates a unique token for email verification
 //
 // returns: token, error
-func generateVerificationToken() (string, error) {
+func GenerateVerificationToken() (string, error) {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	if err != nil {
@@ -126,7 +126,7 @@ func generateVerificationToken() (string, error) {
 // receives: email string
 //
 // returns: true if email is valid, false otherwise
-func validateEmail(email string) bool {
+func ValidateEmail(email string) bool {
 	email = strings.TrimSpace(strings.ToLower(email))
 	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 	return emailRegex.MatchString(email)
@@ -137,7 +137,7 @@ func validateEmail(email string) bool {
 // receives: username string
 //
 // returns: true if username is valid, false otherwise
-func validateUsername(username string) bool {
+func ValidateUsername(username string) bool {
 	username = strings.TrimSpace(username)
 	if len(username) < 3 || len(username) > 30 {
 		return false
@@ -151,7 +151,7 @@ func validateUsername(username string) bool {
 // receives: password string
 //
 // returns: true if password is valid, false otherwise
-func validatePassword(password string) bool {
+func ValidatePassword(password string) bool {
 	if len(password) < 8 {
 		return false
 	}

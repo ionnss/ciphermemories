@@ -53,7 +53,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	// Validate input
-	if !validateEmail(email) {
+	if !ValidateEmail(email) {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(RegisterResponse{
 			Success: false,
@@ -62,7 +62,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !validateUsername(username) {
+	if !ValidateUsername(username) {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(RegisterResponse{
 			Success: false,
@@ -71,7 +71,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !validatePassword(password) {
+	if !ValidatePassword(password) {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(RegisterResponse{
 			Success: false,
@@ -92,7 +92,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate verification token
-	verificationToken, err := generateVerificationToken()
+	verificationToken, err := GenerateVerificationToken()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(RegisterResponse{
@@ -227,7 +227,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	// Validate input
-	if !validateEmail(email) {
+	if !ValidateEmail(email) {
 		http.Error(w, "Invalid email format", http.StatusBadRequest)
 		return
 	}
