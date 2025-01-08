@@ -26,21 +26,71 @@
             <div class="card">
                 <div class="card-body">
                     <form id="createMemoryForm" hx-post="/memories/create">
+                        <input type="text" name="title" placeholder="Title" class="form-control mb-3">
                         <textarea class="form-control mb-3" 
                                   name="content" 
                                   placeholder="Share a memory..."
-                                  rows="3"></textarea>
+                                  rows="3">
+                        </textarea>
                         
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-icon" title="Add Image">
-                                    <i class="fas fa-image"></i>
-                                </button>
-                                <button type="button" class="btn btn-icon" title="Encrypt">
+                                <button type="button" class="btn btn-icon" title="Toggle Privacy" onclick="toggleLock(this)">
                                     <i class="fas fa-lock"></i>
                                 </button>
+                                <input type="hidden" name="status" value="private">
+                                <script>
+                                    function toggleLock(button) {
+                                        const icon = button.querySelector('i');
+                                        const input = button.nextElementSibling;
+                                        const paidButton = document.querySelector('.btn-toggle-paid');
+                                        const priceInput = document.querySelector('input[name="price"]');
+
+                                        if (icon.classList.contains('fa-lock')) {
+                                            icon.classList.replace('fa-lock', 'fa-lock-open');
+                                            button.title = "Public Memory";
+                                            input.value = "public";
+                                            // Hide the paid button and price input when public
+                                            paidButton.classList.add('d-none');
+                                            priceInput.classList.add('d-none');
+                                        } else {
+                                            icon.classList.replace('fa-lock-open', 'fa-lock');
+                                            button.title = "Private Memory";
+                                            input.value = "private";
+                                            // Show the paid button when private
+                                            paidButton.classList.remove('d-none');
+                                        }
+                                    }
+                                </script>
+                                
+                                <button type="button" class="btn btn-icon btn-toggle-paid d-none" title="Toggle Paid" onclick="togglePaid(this)">
+                                    <i class="fas fa-dollar-sign text-danger"></i>
+                                </button>
+                                <input type="hidden" name="is_paid" value="false">
+                                <input type="number" name="price" value="0" class="form-control d-none" style="width: 100px;" min="0">
+                                <script>
+                                    function togglePaid(button) {
+                                        const icon = button.querySelector('i');
+                                        const isPaidInput = button.nextElementSibling;
+                                        const priceInput = isPaidInput.nextElementSibling;
+                                        
+                                        if (icon.classList.contains('text-danger')) {
+                                            icon.classList.replace('text-danger', 'text-success');
+                                            button.title = "Paid Memory";
+                                            isPaidInput.value = "true";
+                                            priceInput.classList.remove('d-none');
+                                        } else {
+                                            icon.classList.replace('text-success', 'text-danger');
+                                            button.title = "Free Memory";
+                                            isPaidInput.value = "false";
+                                            priceInput.value = "0";
+                                            priceInput.classList.add('d-none');
+                                        }
+                                    }
+                                </script>
+                                
                             </div>
-                            <button type="submit" class="btn btn-primary">Share Memory</button>
+                            <button type="submit" class="btn btn-primary">Cipher Memory</button>
                         </div>
                     </form>
                 </div>
