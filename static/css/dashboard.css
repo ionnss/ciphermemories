@@ -15,20 +15,24 @@ body {
 /* Main Content */
 .main-content {
     margin-left: 70px;
-    padding: 2rem;
+    padding: 1rem;
     flex: 1;
     width: calc(100% - 70px);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Create Memory Card */
 .create-memory-card {
+    width: 100%;
     max-width: 600px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 1.5rem;
 }
 
 .create-memory-card .card {
     background-color: #1a1a1a;
-    border: 1px solid #2d2d2d00;
+    border: 1px solid #2d2d2d20;
     border-radius: 15px;
 }
 
@@ -94,8 +98,21 @@ body {
 
 /* Feed de Memórias */
 #memoriesFeed {
+    width: 100%;
     max-width: 600px;
     margin: 0 auto;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#memoriesList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    padding: 0 1rem;
 }
 
 /* Banner de novas memórias */
@@ -103,11 +120,14 @@ body {
     background-color: #4a2b8a;
     color: white;
     text-align: center;
-    padding: 10px;
+    padding: 0.75rem;
     cursor: pointer;
     border-radius: 8px;
-    margin-bottom: 1rem;
+    margin: 0 1rem 1rem 1rem;
     transition: background-color 0.3s ease;
+    position: sticky;
+    top: 0.5rem;
+    z-index: 100;
 }
 
 .new-memories-banner:hover {
@@ -116,8 +136,17 @@ body {
 
 /* Item de Memória */
 .memory-item {
-    padding: 1rem 0;
-    border-bottom: 1px solid #2d2d2d;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid #2d2d2d20;
+    width: 100%;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.memory-item:hover {
+    transform: translateY(-2px);
+    border-color: #4a2b8a40;
 }
 
 .memory-header {
@@ -188,4 +217,45 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #5c37a9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    .main-content {
+        margin-left: 0;
+        margin-bottom: 70px;
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    #memoriesList {
+        padding: 0 0.5rem;
+    }
+
+    .memory-item {
+        padding: 1rem;
+    }
+
+    .new-memories-banner {
+        margin: 0 0.5rem 0.75rem 0.5rem;
+        padding: 0.5rem;
+    }
+}
+
+/* Large screens */
+@media (min-width: 1400px) {
+    #memoriesList {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+}
+
+/* Extra large screens */
+@media (min-width: 1800px) {
+    #memoriesList {
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    }
 }

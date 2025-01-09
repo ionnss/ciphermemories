@@ -1,52 +1,50 @@
 {{define "sidebar"}}
 <div class="sidebar">
-    <div class="d-flex flex-column h-100">
-        <!-- Logo -->
-        <a href="/dashboard" class="logo-link mb-4">
-            <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo">
+    <!-- Logo -->
+    <a href="/dashboard" class="logo-link">
+        <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo">
+    </a>
+
+    <!-- Navigation Icons -->
+    <nav class="nav-container">
+        <a href="/dashboard" class="nav-link {{if eq .CurrentPage "dashboard"}}active{{end}}" title="Feed">
+            <i class="fas fa-home"></i>
         </a>
+        <a href="/explore" class="nav-link {{if eq .CurrentPage "explore"}}active{{end}}" title="Explore">
+            <i class="fas fa-search"></i>
+        </a>
+        <a href="/memories" class="nav-link {{if eq .CurrentPage "memories"}}active{{end}}" title="My Memories">
+            <i class="fas fa-book"></i>
+        </a>
+        <a href="/encrypted" class="nav-link {{if eq .CurrentPage "encrypted"}}active{{end}}" title="Encrypted Memories">
+            <i class="fas fa-lock"></i>
+        </a>
+        <a href="/marketplace" class="nav-link {{if eq .CurrentPage "marketplace"}}active{{end}}" title="Marketplace">
+            <i class="fas fa-store"></i>
+        </a>
+        
+        <!-- Settings -->
+        <a href="/settings" class="nav-link" title="Settings">
+            <i class="fas fa-cog"></i>
+        </a>
+    </nav>
 
-        <!-- Navigation Icons -->
-        <nav class="nav flex-column mb-auto">
-            <a href="/dashboard" class="nav-link {{if eq .CurrentPage "dashboard"}}active{{end}}" title="Feed">
-                <i class="fas fa-home"></i>
-            </a>
-            <a href="/explore" class="nav-link {{if eq .CurrentPage "explore"}}active{{end}}" title="Explore">
-                <i class="fas fa-search"></i>
-            </a>
-            <a href="/memories" class="nav-link {{if eq .CurrentPage "memories"}}active{{end}}" title="My Memories">
-                <i class="fas fa-book"></i>
-            </a>
-            <a href="/encrypted" class="nav-link {{if eq .CurrentPage "encrypted"}}active{{end}}" title="Encrypted Memories">
-                <i class="fas fa-lock"></i>
-            </a>
-            <a href="/marketplace" class="nav-link {{if eq .CurrentPage "marketplace"}}active{{end}}" title="Marketplace">
-                <i class="fas fa-store"></i>
-            </a>
-        </nav>
-
-        <!-- Settings and Profile -->
-        <div class="mt-auto">
-            <a href="/settings" class="nav-link" title="Settings">
-                <i class="fas fa-cog"></i>
-            </a>
-            <div class="dropdown">
-                <a class="nav-link profile-link" href="#" data-bs-toggle="dropdown">
-                    <img src="{{.ViewingUser.AvatarURL}}" 
-                         alt="Profile" 
-                         class="rounded-circle profile-img">
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="/profile/{{.ViewingUser.Username}}">Profile</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="/logout" method="POST">
-                            <button type="submit" class="dropdown-item">Logout</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
+    <!-- Profile -->
+    <div class="dropdown">
+        <a class="profile-link" href="#" data-bs-toggle="dropdown">
+            <img src="{{.ViewingUser.AvatarURL}}" 
+                 alt="Profile" 
+                 class="profile-img">
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="/profile/{{.ViewingUser.Username}}">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <form action="/logout" method="POST">
+                    <button type="submit" class="dropdown-item">Logout</button>
+                </form>
+            </li>
+        </ul>
     </div>
 </div>
 {{end}} 
