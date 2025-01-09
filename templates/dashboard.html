@@ -104,7 +104,11 @@
         <!-- Memories Feed -->
         <div id="memoriesFeed">
             <!-- Banner para novas memórias -->
-            <div class="new-memories-banner d-none" hx-get="/memories" hx-target="#memoriesList" hx-swap="afterbegin">
+            <div class="new-memories-banner d-none" 
+                 hx-get="/memories" 
+                 hx-target="#memoriesList" 
+                 hx-swap="innerHTML"
+                 hx-trigger="click">
                 <span id="newMemoriesCount">0</span> novas memórias
             </div>
 
@@ -191,6 +195,8 @@
         });
 
         // Polling para novas memórias a cada 30 segundos
+        let lastCheck = Date.now();
+        
         setInterval(() => {
             const lastMemoryTime = document.querySelector('.memory-item')?.dataset.timestamp;
             if (lastMemoryTime) {
@@ -201,6 +207,7 @@
                             const banner = document.querySelector('.new-memories-banner');
                             document.getElementById('newMemoriesCount').textContent = data.count;
                             banner.classList.remove('d-none');
+                            lastCheck = Date.now();
                         }
                     });
             }
@@ -209,6 +216,7 @@
         // Esconder banner após carregar novas memórias
         document.querySelector('.new-memories-banner').addEventListener('click', function() {
             this.classList.add('d-none');
+            lastCheck = Date.now(); // Atualiza o timestamp do último check
         });
     </script>
 </body>
