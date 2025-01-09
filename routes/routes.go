@@ -38,4 +38,5 @@ func ConfigureRoutes(r *mux.Router) {
 	// Protected actions
 	protected.HandleFunc("/dashboard", handlers.DashboardPage).Methods("GET")
 	protected.HandleFunc("/logout", handlers.LogoutUser).Methods("POST")
+	protected.HandleFunc("/create-memory", handlers.CreateMemory).Methods("POST")
 }

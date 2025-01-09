@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS memories (
     price INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (creator_id) REFERENCES users(id)
-)
+);
 
 CREATE TABLE IF NOT EXISTS memories_access (
     id SERIAL PRIMARY KEY,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS memories_access (
     transaction_id VARCHAR(255) NOT NULL,
     FOREIGN KEY (memory_id) REFERENCES memories(id),
     FOREIGN KEY (buyer_id) REFERENCES users(id)
-)
+);
 
 CREATE INDEX IF NOT EXISTS idx_memory_id ON memories_access (memory_id);
 CREATE INDEX IF NOT EXISTS idx_buyer_id ON memories_access (buyer_id);

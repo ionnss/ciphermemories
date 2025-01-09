@@ -8,6 +8,14 @@ import (
 	"strconv"
 )
 
+// CreateMemory creates a new memory
+//
+// receives:
+// - w http.ResponseWriter: the response writer
+// - r *http.Request: the request
+//
+// returns:
+// - void
 func CreateMemory(w http.ResponseWriter, r *http.Request) {
 	// Get user from session
 	user := GetUserFromSession(r)
@@ -160,4 +168,28 @@ func CreateMemory(w http.ResponseWriter, r *http.Request) {
         "refreshFeed": true
     }`)
 	w.WriteHeader(http.StatusCreated)
+}
+
+// IndexMemoriesCount returns the number of memories ever created
+//
+// receives:
+// - w http.ResponseWriter: the response writer
+// - r *http.Request: the request
+//
+// returns:
+// - void
+func IndexMemoriesCount(w http.ResponseWriter, r *http.Request) {
+
+}
+
+// GetMemoriesFeed returns a list of memories for the feed
+//
+// receives:
+// - w http.ResponseWriter: the response writer
+// - r *http.Request: the request
+//
+// returns:
+// - void
+func GetMemoriesFeed(w http.ResponseWriter, r *http.Request) {
+
 }

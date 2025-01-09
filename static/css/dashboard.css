@@ -28,22 +28,42 @@ body {
 
 .create-memory-card .card {
     background-color: #1a1a1a;
-    border: 1px solid #2d2d2d;
+    border: 1px solid #2d2d2d70;
     border-radius: 15px;
 }
 
-.create-memory-card textarea {
+/* Estilização específica para o título */
+.create-memory-card input.form-control {
     background-color: #1a1a1a;
-    border: none;
+    border: 1px solid #2d2d2d70;
     color: #ffffff;
-    resize: none;
     font-size: 1.1rem;
 }
 
-.create-memory-card textarea:focus {
+/* Estilização específica para o textarea */
+.create-memory-card textarea.form-control {
+    background-color: #1a1a1a;
+    border: 1px solid #2d2d2d70;
+    color: #ffffff;
+    font-size: 0.95rem;
+    resize: none;
+    min-height: 60px;
+    overflow-y: hidden;
+}
+
+/* Estilização do foco para ambos */
+.create-memory-card input.form-control:focus,
+.create-memory-card textarea.form-control:focus {
     background-color: #1a1a1a;
     color: #ffffff;
-    box-shadow: none;
+    border-color: #4a2b8a;
+    box-shadow: 0 0 0 0.2rem rgba(74, 43, 138, 0.25);
+}
+
+/* Estilização do placeholder para ambos */
+.create-memory-card input.form-control::placeholder,
+.create-memory-card textarea.form-control::placeholder {
+    color: #6666668b;
 }
 
 /* Buttons */
@@ -88,4 +108,4 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #5c37a9;
-} 
+}

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - CIPHER MEMORIES</title>
-    
+
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -16,6 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.js"></script>
 </head>
+
 <body>
     {{template "sidebar" .}}
 
@@ -25,30 +27,30 @@
         <div class="create-memory-card">
             <div class="card">
                 <div class="card-body">
-                    <form id="createMemoryForm" hx-post="/memories/create">
+                    <form id="createMemoryForm" hx-post="/create-memory" hx-swap="none">
                         <!-- Área para mensagens -->
                         <div id="form-messages" class="alert alert-danger d-none mb-3"></div>
 
                         <input type="text" name="title" placeholder="Title" class="form-control mb-3">
-                        <textarea class="form-control mb-3" 
-                                  name="content" 
-                                  placeholder="Share a memory..."
-                                  rows="3">
-                        </textarea>
-                        
+                        <textarea class="form-control mb-3" name="content" placeholder="We shall remember..."
+                            rows="3"></textarea>
+
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-icon" title="Toggle Privacy" onclick="toggleLock(this)">
+                                <button type="button" class="btn btn-icon" title="Toggle Privacy"
+                                    onclick="toggleLock(this)">
                                     <i class="fas fa-lock"></i>
                                 </button>
                                 <input type="hidden" name="status" value="private">
-                                
-                                <button type="button" class="btn btn-icon btn-toggle-paid" title="Toggle Paid" onclick="togglePaid(this)">
+
+                                <button type="button" class="btn btn-icon btn-toggle-paid" title="Toggle Paid"
+                                    onclick="togglePaid(this)">
                                     <i class="fas fa-dollar-sign text-danger"></i>
                                 </button>
                                 <input type="hidden" name="is_paid" value="false">
-                                <input type="number" name="price" value="10" class="form-control d-none" style="width: 100px;" min="10">
-                                
+                                <input type="number" name="price" value="10" class="form-control d-none"
+                                    style="width: 100px;" min="10">
+
                                 <script>
                                     function toggleLock(button) {
                                         const icon = button.querySelector('i');
@@ -76,7 +78,7 @@
                                         const icon = button.querySelector('i');
                                         const isPaidInput = button.nextElementSibling;
                                         const priceInput = isPaidInput.nextElementSibling;
-                                        
+
                                         if (icon.classList.contains('text-danger')) {
                                             icon.classList.replace('text-danger', 'text-success');
                                             button.title = "Paid Memory";
@@ -115,46 +117,63 @@
 
     <!-- Script for messages -->
     <script>
-        document.body.addEventListener('htmx:afterRequest', function(evt) {
+        document.body.addEventListener('htmx:afterRequest', function (evt) {
             const messageDiv = document.getElementById('form-messages');
-            
+
             if (evt.detail.xhr.getResponseHeader("HX-Trigger")) {
                 const trigger = JSON.parse(evt.detail.xhr.getResponseHeader("HX-Trigger"));
-                
+
                 // Mostrar mensagem
                 if (trigger.showMessage) {
                     messageDiv.textContent = trigger.showMessage;
                     messageDiv.classList.remove('d-none');
+
+                    // Atualizar feed// Adicionar classe apropriada baseada no tipo de mensagem
+                    if (trigger.showMessage === "Memory Ciphered!") {
+                        messageDiv.classList.remove('alert-danger');
+                        messageDiv.classList.add('alert-success');
+                    }
+
+                    // Esconder qualquer mensagem após 3 segundos
+                    setTimeout(() => {
+                        messageDiv.classList.add('d-none');
+                        // Resetar classes
+                        messageDiv.classList.remove('alert-success');
+                        messageDiv.classList.add('alert-danger');
+                        messageDiv.textContent = '';
+                    }, 3000);
                 }
-    
+
                 // Limpar formulário
                 if (trigger.clearForm) {
                     document.getElementById('createMemoryForm').reset();
-                    
+
                     // Resetar os ícones e estados
                     const lockIcon = document.querySelector('.btn-icon i.fa-lock-open');
                     if (lockIcon) {
                         lockIcon.classList.replace('fa-lock-open', 'fa-lock');
                     }
-                    
+
                     const dollarIcon = document.querySelector('.fa-dollar-sign.text-success');
                     if (dollarIcon) {
                         dollarIcon.classList.replace('text-success', 'text-danger');
                     }
-                    
+
                     // Esconder input de preço
                     document.querySelector('input[name="price"]').classList.add('d-none');
-                    
+
                     // Resetar valores dos inputs hidden
                     document.querySelector('input[name="status"]').value = 'private';
                     document.querySelector('input[name="is_paid"]').value = 'false';
                     document.querySelector('input[name="price"]').value = '10';
+
+                    // Resetar altura do textarea após limpar
+                    const textarea = document.querySelector('textarea[name="content"]');
+                    textarea.style.height = '60px'; // Volta para altura mínima
                 }
-    
+
                 // Atualizar feed
                 if (trigger.refreshFeed) {
-                    // Aqui vamos adicionar a lógica para recarregar o feed
-                    // Por enquanto podemos fazer um refresh simples
                     htmx.trigger('#memoriesFeed', 'refresh');
                 }
             } else {
@@ -163,6 +182,11 @@
                 messageDiv.textContent = '';
             }
         });
+        document.querySelector('textarea[name="content"]').addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
     </script>
 </body>
+
 </html>

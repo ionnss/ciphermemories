@@ -66,6 +66,7 @@ func Connect() error {
 func ExecuteMigrations(conn *sql.DB) error {
 	migrationFiles := []string{
 		"db/001.users_table.sql",
+		"db/002.memories_table.sql",
 		//...
 	}
 
