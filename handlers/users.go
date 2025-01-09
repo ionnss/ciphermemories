@@ -3,7 +3,6 @@ package handlers
 import (
 	"ciphermemories/db"
 	"ciphermemories/models"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -277,6 +276,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	session.Values["last_activity"] = time.Now().Unix()
 
 	fmt.Printf("Login: setting session values: %+v\n", session.Values)
+	fmt.Printf("Login: session options: %+v\n", session.Options)
 
 	// Save session
 	if err := session.Save(r, w); err != nil {
@@ -346,11 +346,13 @@ func GetUserFromSession(r *http.Request) *models.User {
 	session, err := Store.Get(r, "session-ciphermemories")
 	if err != nil {
 		fmt.Printf("GetUserFromSession failed: error getting session: %v\n", err)
+		fmt.Printf("Request cookies: %+v\n", r.Cookies())
 		return nil
 	}
 
 	// Debug: print all session values
 	fmt.Printf("Session values: %+v\n", session.Values)
+	fmt.Printf("Session options: %+v\n", session.Options)
 
 	userID, ok := session.Values["user_id"].(int)
 	if !ok {
@@ -374,78 +376,44 @@ func GetUserFromSession(r *http.Request) *models.User {
 // GetUserByUsername busca um usuário pelo username
 func GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
-	var bio, birthLocation, currentLocation sql.NullString
-	var birthDate sql.NullTime
 
 	err := db.DB.QueryRow(`
-		SELECT id, username, email, created_at, updated_at, 
-			   bio, birthdate, birth_location, current_location, 
-			   COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url
-				FROM users 
-				WHERE username = $1
+		SELECT id, username, email, created_at, updated_at
+		FROM users 
+		WHERE username = $1
 	`, username).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
 		&user.CreatedAt,
 		&user.UpdatedAt,
-		&bio,
-		&birthDate,
-		&birthLocation,
-		&currentLocation,
-		&user.AvatarURL,
 	)
 
 	if err != nil {
 		return nil, err
 	}
-
-	// Convert NullString and NullTime to their types
-	user.Bio = bio.String
-	if birthDate.Valid {
-		user.BirthDate = birthDate.Time
-	}
-	user.BirthLocation = birthLocation.String
-	user.CurrentLocation = currentLocation.String
 
 	return &user, nil
 }
 
 func GetUserByID(userID int64) (*models.User, error) {
 	var user models.User
-	var bio, birthLocation, currentLocation sql.NullString
-	var birthDate sql.NullTime
 
 	err := db.DB.QueryRow(`
-		SELECT id, username, email, created_at, updated_at, 
-			   bio, birthdate, birth_location, current_location, 
-			   COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url
-				FROM users 
-				WHERE id = $1
+		SELECT id, username, email, created_at, updated_at
+		FROM users 
+		WHERE id = $1
 	`, userID).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
 		&user.CreatedAt,
 		&user.UpdatedAt,
-		&bio,
-		&birthDate,
-		&birthLocation,
-		&currentLocation,
-		&user.AvatarURL,
 	)
 
 	if err != nil {
 		return nil, err
 	}
-
-	// Convert NullString and NullTime to their types
-	user.Bio = bio.String
-	if birthDate.Valid {
-		user.BirthDate = birthDate.Time
-	}
-	user.BirthLocation = birthLocation.String
-	user.CurrentLocation = currentLocation.String
 
 	return &user, nil
 }
