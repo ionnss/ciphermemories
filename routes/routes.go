@@ -41,4 +41,5 @@ func ConfigureRoutes(r *mux.Router) {
 	protected.HandleFunc("/logout", handlers.LogoutUser).Methods("POST")
 	protected.HandleFunc("/create-memory", handlers.CreateMemory).Methods("POST")
 	protected.HandleFunc("/memories", handlers.GetMemories).Methods("GET")
+	protected.HandleFunc("/memories/check-new", handlers.CheckNewMemories).Methods("GET")
 }

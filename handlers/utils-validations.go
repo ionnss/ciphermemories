@@ -366,3 +366,39 @@ func EncryptContent(content string, key []byte, iv []byte) (string, string, erro
 func EncryptKey(key []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(key), nil
 }
+
+// DecryptKey descriptografa a chave armazenada
+func DecryptKey(hashedKey string) ([]byte, error) {
+	// Por enquanto, vamos apenas decodificar o base64
+	// TODO: Implementar descriptografia real da chave
+	return base64.StdEncoding.DecodeString(hashedKey)
+}
+
+// DecryptContent descriptografa o conteúdo usando AES-GCM
+func DecryptContent(hashedContent string, key []byte, iv []byte, tag string) (string, error) {
+	// Decodifica o conteúdo do base64
+	ciphertext, err := base64.StdEncoding.DecodeString(hashedContent)
+	if err != nil {
+		return "", fmt.Errorf("erro ao decodificar conteúdo: %v", err)
+	}
+
+	// Cria o cipher block
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", fmt.Errorf("erro ao criar cipher: %v", err)
+	}
+
+	// Cria o GCM
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", fmt.Errorf("erro ao criar GCM: %v", err)
+	}
+
+	// Descriptografa
+	plaintext, err := aesGCM.Open(nil, iv, ciphertext, nil)
+	if err != nil {
+		return "", fmt.Errorf("erro ao descriptografar: %v", err)
+	}
+
+	return string(plaintext), nil
+}

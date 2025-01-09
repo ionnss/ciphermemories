@@ -196,7 +196,8 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 
 	// Query para buscar as memórias mais recentes
 	query := `
-		SELECT m.id, m.title, m.hashed_content, m.status, m.is_paid, m.price, m.created_at,
+		SELECT m.id, m.title, m.hashed_content, m.hashed_key, m.encryption_iv, m.encryption_tag,
+			   m.status, m.is_paid, m.price, m.created_at,
 			   u.id as user_id, u.username
 		FROM memories m
 		JOIN users u ON m.creator_id = u.id
@@ -236,6 +237,9 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 			ID            int64
 			Title         string
 			HashedContent string
+			HashedKey     string
+			EncryptionIV  string
+			EncryptionTag string
 			Status        string
 			IsPaid        bool
 			Price         int
@@ -245,8 +249,8 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err := rows.Scan(
-			&m.ID, &m.Title, &m.HashedContent, &m.Status,
-			&m.IsPaid, &m.Price, &m.CreatedAt,
+			&m.ID, &m.Title, &m.HashedContent, &m.HashedKey, &m.EncryptionIV, &m.EncryptionTag,
+			&m.Status, &m.IsPaid, &m.Price, &m.CreatedAt,
 			&m.UserID, &m.Username,
 		)
 		if err != nil {
@@ -277,8 +281,40 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 
 		// Adiciona o conteúdo apenas se for pública
 		if m.Status == "public" {
-			// TODO: Descriptografar o conteúdo
-			memory.Content = m.HashedContent
+			// Descriptografa o conteúdo
+			iv, err := base64.StdEncoding.DecodeString(m.EncryptionIV)
+			if err != nil {
+				fmt.Printf("Erro ao decodificar IV: %v\n", err)
+				continue
+			}
+
+			key, err := DecryptKey(m.HashedKey)
+			if err != nil {
+				fmt.Printf("Erro ao descriptografar chave: %v\n", err)
+				continue
+			}
+
+			tag, err := base64.StdEncoding.DecodeString(m.EncryptionTag)
+			if err != nil {
+				fmt.Printf("Erro ao decodificar tag: %v\n", err)
+				continue
+			}
+
+			// Concatena o conteúdo com a tag para descriptografia
+			encryptedData, err := base64.StdEncoding.DecodeString(m.HashedContent)
+			if err != nil {
+				fmt.Printf("Erro ao decodificar conteúdo: %v\n", err)
+				continue
+			}
+
+			fullData := append(encryptedData, tag...)
+			content, err := DecryptContent(base64.StdEncoding.EncodeToString(fullData), key, iv, m.EncryptionTag)
+			if err != nil {
+				fmt.Printf("Erro ao descriptografar conteúdo: %v\n", err)
+				continue
+			}
+
+			memory.Content = content
 		}
 
 		// Adiciona informações do usuário
@@ -297,4 +333,41 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao renderizar memórias", http.StatusInternalServerError)
 		return
 	}
+}
+
+// CheckNewMemories verifica se existem novas memórias desde um determinado timestamp
+func CheckNewMemories(w http.ResponseWriter, r *http.Request) {
+	// Obtém o timestamp da última memória
+	since := r.URL.Query().Get("since")
+	if since == "" {
+		http.Error(w, "Parâmetro 'since' é obrigatório", http.StatusBadRequest)
+		return
+	}
+
+	// Converte para int64
+	timestamp, err := strconv.ParseInt(since, 10, 64)
+	if err != nil {
+		http.Error(w, "Timestamp inválido", http.StatusBadRequest)
+		return
+	}
+
+	// Converte para time.Time
+	sinceTime := time.Unix(timestamp, 0)
+
+	// Conta quantas memórias novas existem
+	var count int
+	err = db.DB.QueryRow(`
+		SELECT COUNT(*) 
+		FROM memories 
+		WHERE created_at > $1
+	`, sinceTime).Scan(&count)
+
+	if err != nil {
+		http.Error(w, "Erro ao contar novas memórias", http.StatusInternalServerError)
+		return
+	}
+
+	// Retorna o resultado como JSON
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, `{"count": %d}`, count)
 }

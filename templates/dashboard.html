@@ -131,16 +131,17 @@
                     messageDiv.textContent = trigger.showMessage;
                     messageDiv.classList.remove('d-none');
 
-                    // Atualizar feed// Adicionar classe apropriada baseada no tipo de mensagem
                     if (trigger.showMessage === "Memory Ciphered!") {
                         messageDiv.classList.remove('alert-danger');
                         messageDiv.classList.add('alert-success');
+
+                        // Atualizar feed quando uma nova memória é criada
+                        htmx.ajax('GET', '/memories', {target: '#memoriesList', swap: 'innerHTML'});
                     }
 
                     // Esconder qualquer mensagem após 3 segundos
                     setTimeout(() => {
                         messageDiv.classList.add('d-none');
-                        // Resetar classes
                         messageDiv.classList.remove('alert-success');
                         messageDiv.classList.add('alert-danger');
                         messageDiv.textContent = '';
@@ -172,22 +173,42 @@
 
                     // Resetar altura do textarea após limpar
                     const textarea = document.querySelector('textarea[name="content"]');
-                    textarea.style.height = '60px'; // Volta para altura mínima
+                    textarea.style.height = '60px';
                 }
 
-                // Atualizar feed
+                // Atualizar feed quando uma nova memória é criada
                 if (trigger.refreshFeed) {
-                    htmx.trigger('#memoriesFeed', 'refresh');
+                    document.getElementById('memoriesList').innerHTML = '';
+                    htmx.trigger('#memoriesList', 'load');
                 }
-            } else {
-                // Limpa mensagens em caso de sucesso sem triggers
-                messageDiv.classList.add('d-none');
-                messageDiv.textContent = '';
             }
         });
+
+        // Ajusta altura do textarea conforme digita
         document.querySelector('textarea[name="content"]').addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Polling para novas memórias a cada 30 segundos
+        setInterval(() => {
+            const lastMemoryTime = document.querySelector('.memory-item')?.dataset.timestamp;
+            if (lastMemoryTime) {
+                fetch(`/memories/check-new?since=${lastMemoryTime}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.count > 0) {
+                            const banner = document.querySelector('.new-memories-banner');
+                            document.getElementById('newMemoriesCount').textContent = data.count;
+                            banner.classList.remove('d-none');
+                        }
+                    });
+            }
+        }, 30000);
+
+        // Esconder banner após carregar novas memórias
+        document.querySelector('.new-memories-banner').addEventListener('click', function() {
+            this.classList.add('d-none');
         });
     </script>
 </body>
