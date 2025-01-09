@@ -109,7 +109,7 @@
                  hx-target="#memoriesList" 
                  hx-swap="innerHTML"
                  hx-trigger="click">
-                <span id="newMemoriesCount">0</span> novas memórias
+                <span id="newMemoriesCount">0</span> new ciphered memories
             </div>
 
             <!-- Lista de memórias -->
@@ -196,27 +196,37 @@
 
         // Polling para novas memórias a cada 30 segundos
         let lastCheck = Date.now();
+        let isPolling = true;
         
-        setInterval(() => {
+        function checkNewMemories() {
+            if (!isPolling) return;
+            
             const lastMemoryTime = document.querySelector('.memory-item')?.dataset.timestamp;
             if (lastMemoryTime) {
                 fetch(`/memories/check-new?since=${lastMemoryTime}`)
                     .then(response => response.json())
                     .then(data => {
-                        if (data.count > 0) {
+                        if (data.count > 0 && isPolling) {
                             const banner = document.querySelector('.new-memories-banner');
                             document.getElementById('newMemoriesCount').textContent = data.count;
                             banner.classList.remove('d-none');
-                            lastCheck = Date.now();
                         }
                     });
             }
-        }, 30000);
+        }
+
+        setInterval(checkNewMemories, 30000);
 
         // Esconder banner após carregar novas memórias
         document.querySelector('.new-memories-banner').addEventListener('click', function() {
             this.classList.add('d-none');
-            lastCheck = Date.now(); // Atualiza o timestamp do último check
+            isPolling = false; // Pausa o polling enquanto atualiza
+            
+            // Retoma o polling após a atualização do feed
+            setTimeout(() => {
+                isPolling = true;
+                lastCheck = Date.now();
+            }, 1000);
         });
     </script>
 </body>
