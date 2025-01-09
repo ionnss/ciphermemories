@@ -217,7 +217,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	// Parse form data
 	if err := r.ParseForm(); err != nil {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Invalid form data"}`)
 		http.Error(w, "Invalid form data", http.StatusBadRequest)
 		return
 	}
@@ -228,7 +227,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	// Validate input
 	if !ValidateEmail(email) {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Invalid email format"}`)
 		http.Error(w, "Invalid email format", http.StatusBadRequest)
 		return
 	}
@@ -248,21 +246,18 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	`, email).Scan(&user.ID, &user.Username, &user.HashedPassword, &user.VerifiedEmail)
 
 	if err != nil {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Invalid email or password"}`)
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
 	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(password)); err != nil {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Invalid email or password"}`)
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
 	// Check if email is verified
 	if !user.VerifiedEmail {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Please verify your email before logging in"}`)
 		http.Error(w, "Please verify your email before logging in", http.StatusUnauthorized)
 		return
 	}
@@ -270,7 +265,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	// Create session
 	session, err := Store.Get(r, "session-ciphermemories")
 	if err != nil {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Error creating session"}`)
 		http.Error(w, "Error creating session", http.StatusInternalServerError)
 		return
 	}
@@ -286,7 +280,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	// Save session
 	if err := session.Save(r, w); err != nil {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Error saving session"}`)
 		http.Error(w, "Error saving session", http.StatusInternalServerError)
 		return
 	}
