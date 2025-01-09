@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
@@ -262,6 +264,11 @@ func isHTMXOnlyRoute(path string) bool {
 	return false
 }
 
+// UploadToCloudinary uploads a file to Cloudinary
+//
+// receives: file io.Reader
+//
+// returns: URL of the uploaded file, error
 func UploadToCloudinary(file io.Reader) (string, error) {
 	fmt.Printf("UploadToCloudinary: starting upload\n")
 
@@ -297,4 +304,65 @@ func UploadToCloudinary(file io.Reader) (string, error) {
 	fmt.Printf("UploadToCloudinary: upload successful - URL: %s\n", uploadResult.SecureURL)
 
 	return uploadResult.SecureURL, nil
+}
+
+// GenerateRandomKey generates a random key
+//
+// returns: key, error
+func GenerateRandomKey() ([]byte, error) {
+	key := make([]byte, 32)
+	if _, err := rand.Read(key); err != nil {
+		return nil, fmt.Errorf("failed to generate random key: %v", err)
+	}
+	return key, nil
+}
+
+// GenerateIV generates a random IV of 12 bytes
+//
+// returns: IV, error
+func GenerateIV() ([]byte, error) {
+	iv := make([]byte, 12)
+	if _, err := rand.Read(iv); err != nil {
+		return nil, fmt.Errorf("failed to generate IV: %v", err)
+	}
+	return iv, nil
+}
+
+// EncryptContent encrypts the content using AES-GCM
+//
+// receives: content string, key []byte, iv []byte
+//
+// returns: encrypted content, tag, error
+func EncryptContent(content string, key []byte, iv []byte) (string, string, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to create cipher: %v", err)
+	}
+
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to create GCM: %v", err)
+	}
+
+	// Encrypt the content
+	encrypted := aesGCM.Seal(nil, iv, []byte(content), nil)
+
+	// Return the encrypted content and the tag
+	// The last 16 bytes are the tag for authentication
+	tag := encrypted[len(encrypted)-16:]
+	encryptedContent := encrypted[:len(encrypted)-16]
+
+	// Convert to base64 for safe storage
+	return base64.StdEncoding.EncodeToString(encryptedContent),
+		base64.StdEncoding.EncodeToString(tag),
+		nil
+}
+
+// EncryptKey encrupts the key for storage
+//
+// receives: key []byte
+//
+// returns: encrypted key, error
+func EncryptKey(key []byte) (string, error) {
+	return base64.StdEncoding.EncodeToString(key), nil
 }

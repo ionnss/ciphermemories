@@ -26,6 +26,9 @@
             <div class="card">
                 <div class="card-body">
                     <form id="createMemoryForm" hx-post="/memories/create">
+                        <!-- Área para mensagens -->
+                        <div id="form-messages" class="alert alert-danger d-none mb-3"></div>
+
                         <input type="text" name="title" placeholder="Title" class="form-control mb-3">
                         <textarea class="form-control mb-3" 
                                   name="content" 
@@ -39,12 +42,19 @@
                                     <i class="fas fa-lock"></i>
                                 </button>
                                 <input type="hidden" name="status" value="private">
+                                
+                                <button type="button" class="btn btn-icon btn-toggle-paid" title="Toggle Paid" onclick="togglePaid(this)">
+                                    <i class="fas fa-dollar-sign text-danger"></i>
+                                </button>
+                                <input type="hidden" name="is_paid" value="false">
+                                <input type="number" name="price" value="10" class="form-control d-none" style="width: 100px;" min="10">
+                                
                                 <script>
                                     function toggleLock(button) {
                                         const icon = button.querySelector('i');
                                         const input = button.nextElementSibling;
-                                        const paidButton = document.querySelector('.btn-toggle-paid');
-                                        const priceInput = document.querySelector('input[name="price"]');
+                                        const paidButton = button.nextElementSibling.nextElementSibling;
+                                        const priceInput = paidButton.nextElementSibling.nextElementSibling;
 
                                         if (icon.classList.contains('fa-lock')) {
                                             icon.classList.replace('fa-lock', 'fa-lock-open');
@@ -61,14 +71,7 @@
                                             paidButton.classList.remove('d-none');
                                         }
                                     }
-                                </script>
-                                
-                                <button type="button" class="btn btn-icon btn-toggle-paid d-none" title="Toggle Paid" onclick="togglePaid(this)">
-                                    <i class="fas fa-dollar-sign text-danger"></i>
-                                </button>
-                                <input type="hidden" name="is_paid" value="false">
-                                <input type="number" name="price" value="0" class="form-control d-none" style="width: 100px;" min="0">
-                                <script>
+
                                     function togglePaid(button) {
                                         const icon = button.querySelector('i');
                                         const isPaidInput = button.nextElementSibling;
@@ -83,12 +86,11 @@
                                             icon.classList.replace('text-success', 'text-danger');
                                             button.title = "Free Memory";
                                             isPaidInput.value = "false";
-                                            priceInput.value = "0";
+                                            priceInput.value = "10";
                                             priceInput.classList.add('d-none');
                                         }
                                     }
                                 </script>
-                                
                             </div>
                             <button type="submit" class="btn btn-primary">Cipher Memory</button>
                         </div>
@@ -110,5 +112,57 @@
             </div>
         </div>
     </main>
+
+    <!-- Script for messages -->
+    <script>
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            const messageDiv = document.getElementById('form-messages');
+            
+            if (evt.detail.xhr.getResponseHeader("HX-Trigger")) {
+                const trigger = JSON.parse(evt.detail.xhr.getResponseHeader("HX-Trigger"));
+                
+                // Mostrar mensagem
+                if (trigger.showMessage) {
+                    messageDiv.textContent = trigger.showMessage;
+                    messageDiv.classList.remove('d-none');
+                }
+    
+                // Limpar formulário
+                if (trigger.clearForm) {
+                    document.getElementById('createMemoryForm').reset();
+                    
+                    // Resetar os ícones e estados
+                    const lockIcon = document.querySelector('.btn-icon i.fa-lock-open');
+                    if (lockIcon) {
+                        lockIcon.classList.replace('fa-lock-open', 'fa-lock');
+                    }
+                    
+                    const dollarIcon = document.querySelector('.fa-dollar-sign.text-success');
+                    if (dollarIcon) {
+                        dollarIcon.classList.replace('text-success', 'text-danger');
+                    }
+                    
+                    // Esconder input de preço
+                    document.querySelector('input[name="price"]').classList.add('d-none');
+                    
+                    // Resetar valores dos inputs hidden
+                    document.querySelector('input[name="status"]').value = 'private';
+                    document.querySelector('input[name="is_paid"]').value = 'false';
+                    document.querySelector('input[name="price"]').value = '10';
+                }
+    
+                // Atualizar feed
+                if (trigger.refreshFeed) {
+                    // Aqui vamos adicionar a lógica para recarregar o feed
+                    // Por enquanto podemos fazer um refresh simples
+                    htmx.trigger('#memoriesFeed', 'refresh');
+                }
+            } else {
+                // Limpa mensagens em caso de sucesso sem triggers
+                messageDiv.classList.add('d-none');
+                messageDiv.textContent = '';
+            }
+        });
+    </script>
 </body>
 </html>
