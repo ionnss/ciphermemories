@@ -39,6 +39,7 @@ func init() {
 		MaxAge:   86400 * 7, // 7 dias
 		HttpOnly: true,
 		Secure:   true,
+		Domain:   os.Getenv("COOKIE_DOMAIN"), // Permite configurar o domínio via env
 		SameSite: http.SameSiteLaxMode,
 	}
 }
