@@ -38,8 +38,10 @@
 
                 <form id="loginForm" class="p-4 rounded" 
                     style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);"
-                    method="POST"
-                    action="/login">
+                    hx-post="/login"
+                    hx-trigger="submit"
+                    hx-target="body"
+                    hx-push-url="true">
 
                     <div class="mb-3">
                         <input type="email" name="email" class="form-control btn-light" placeholder="Email" required>
@@ -68,5 +70,26 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            const messageDiv = document.getElementById('message');
+            
+            if (evt.detail.xhr.getResponseHeader("HX-Trigger")) {
+                const trigger = JSON.parse(evt.detail.xhr.getResponseHeader("HX-Trigger"));
+                
+                if (trigger.showMessage) {
+                    messageDiv.textContent = trigger.showMessage;
+                    messageDiv.classList.remove('d-none', 'alert-success');
+                    messageDiv.classList.add('alert-danger');
+                    
+                    // Esconder a mensagem após 3 segundos
+                    setTimeout(() => {
+                        messageDiv.classList.add('d-none');
+                    }, 3000);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
