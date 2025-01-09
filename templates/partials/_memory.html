@@ -1,0 +1,25 @@
+{{define "memory"}}
+<div class="memory-item">
+    <div class="memory-header">
+        <div class="memory-info">
+            <div class="memory-title">{{.Title}}</div>
+            <div class="memory-author">@{{.User.Username}}</div>
+        </div>
+        <div class="memory-time">{{.FormattedTime}}</div>
+    </div>
+    
+    {{if eq .Status "public"}}
+        <div class="memory-content">{{.Content}}</div>
+    {{else}}
+        <div class="memory-private">
+            <i class="fas fa-lock"></i>
+            {{if .IsPaid}}
+                <span class="memory-price">
+                    <i class="fas fa-dollar-sign"></i>
+                    {{.Price}}
+                </span>
+            {{end}}
+        </div>
+    {{end}}
+</div>
+{{end}} 

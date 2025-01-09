@@ -92,6 +92,82 @@ body {
     color: #4a2b8a;
 }
 
+/* Feed de Memórias */
+#memoriesFeed {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Banner de novas memórias */
+.new-memories-banner {
+    background-color: #4a2b8a;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.new-memories-banner:hover {
+    background-color: #5c37a9;
+}
+
+/* Item de Memória */
+.memory-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid #2d2d2d;
+}
+
+.memory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.memory-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.memory-time {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.memory-content {
+    color: #e6e6e6;
+    font-size: 1rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.memory-private {
+    color: #666;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.memory-price {
+    color: #4a2b8a;
+    font-weight: 600;
+}
+
+.memory-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.memory-author {
+    color: #666;
+    font-size: 0.85rem;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;

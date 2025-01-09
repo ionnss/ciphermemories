@@ -103,14 +103,17 @@
 
         <!-- Memories Feed -->
         <div id="memoriesFeed">
-            <!-- Memories will be loaded here -->
-            <!-- Example of displaying a memory -->
-            <div class="memory-content" style="white-space: pre-wrap;">
-                Exemplo
+            <!-- Banner para novas memórias -->
+            <div class="new-memories-banner d-none" hx-get="/memories" hx-target="#memoriesList" hx-swap="afterbegin">
+                <span id="newMemoriesCount">0</span> novas memórias
+            </div>
 
-                Exemplo
-
-                Exemplo
+            <!-- Lista de memórias -->
+            <div id="memoriesList"
+                 hx-get="/memories"
+                 hx-trigger="revealed"
+                 hx-swap="beforeend">
+                <!-- As memórias serão carregadas aqui -->
             </div>
         </div>
     </main>

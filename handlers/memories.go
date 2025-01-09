@@ -4,18 +4,27 @@ import (
 	"ciphermemories/db"
 	"ciphermemories/models"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 )
 
-// CreateMemory creates a new memory
-//
-// receives:
-// - w http.ResponseWriter: the response writer
-// - r *http.Request: the request
-//
-// returns:
-// - void
+// IndexMemoriesCount retorna o total de memórias criptografadas
+func IndexMemoriesCount(w http.ResponseWriter, r *http.Request) {
+	// Obtém o total de memórias do banco de dados
+	var count int
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM memories").Scan(&count)
+	if err != nil {
+		http.Error(w, "Erro ao contar memórias", http.StatusInternalServerError)
+		return
+	}
+
+	// Retorna apenas o número
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprintf(w, "%d", count)
+}
+
 func CreateMemory(w http.ResponseWriter, r *http.Request) {
 	// Get user from session
 	user := GetUserFromSession(r)
@@ -170,26 +179,122 @@ func CreateMemory(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-// IndexMemoriesCount returns the number of memories ever created
-//
-// receives:
-// - w http.ResponseWriter: the response writer
-// - r *http.Request: the request
-//
-// returns:
-// - void
-func IndexMemoriesCount(w http.ResponseWriter, r *http.Request) {
+// GetMemories retorna uma lista paginada de memórias
+func GetMemories(w http.ResponseWriter, r *http.Request) {
+	// Obtém o usuário da sessão
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "Usuário não encontrado", http.StatusUnauthorized)
+		return
+	}
 
-}
+	// Obtém o offset da query string (para paginação)
+	offset := 0
+	if offsetStr := r.URL.Query().Get("offset"); offsetStr != "" {
+		offset, _ = strconv.Atoi(offsetStr)
+	}
 
-// GetMemoriesFeed returns a list of memories for the feed
-//
-// receives:
-// - w http.ResponseWriter: the response writer
-// - r *http.Request: the request
-//
-// returns:
-// - void
-func GetMemoriesFeed(w http.ResponseWriter, r *http.Request) {
+	// Query para buscar as memórias mais recentes
+	query := `
+		SELECT m.id, m.title, m.hashed_content, m.status, m.is_paid, m.price, m.created_at,
+			   u.id as user_id, u.username
+		FROM memories m
+		JOIN users u ON m.creator_id = u.id
+		ORDER BY m.created_at DESC
+		LIMIT 50 OFFSET $1
+	`
 
+	// Executa a query
+	rows, err := db.DB.Query(query, offset)
+	if err != nil {
+		http.Error(w, "Erro ao buscar memórias", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	// Template para formatar o tempo
+	timeTemplate := "2 Jan 2006"
+
+	// Processa cada memória
+	var memories []struct {
+		ID        int64     `json:"id"`
+		Title     string    `json:"title"`
+		Content   string    `json:"content"`
+		Status    string    `json:"status"`
+		IsPaid    bool      `json:"is_paid"`
+		Price     int       `json:"price"`
+		CreatedAt time.Time `json:"created_at"`
+		User      struct {
+			ID       int64  `json:"id"`
+			Username string `json:"username"`
+		} `json:"user"`
+		FormattedTime string `json:"formatted_time"`
+	}
+
+	for rows.Next() {
+		var m struct {
+			ID            int64
+			Title         string
+			HashedContent string
+			Status        string
+			IsPaid        bool
+			Price         int
+			CreatedAt     time.Time
+			UserID        int64
+			Username      string
+		}
+
+		err := rows.Scan(
+			&m.ID, &m.Title, &m.HashedContent, &m.Status,
+			&m.IsPaid, &m.Price, &m.CreatedAt,
+			&m.UserID, &m.Username,
+		)
+		if err != nil {
+			continue
+		}
+
+		memory := struct {
+			ID        int64     `json:"id"`
+			Title     string    `json:"title"`
+			Content   string    `json:"content"`
+			Status    string    `json:"status"`
+			IsPaid    bool      `json:"is_paid"`
+			Price     int       `json:"price"`
+			CreatedAt time.Time `json:"created_at"`
+			User      struct {
+				ID       int64  `json:"id"`
+				Username string `json:"username"`
+			} `json:"user"`
+			FormattedTime string `json:"formatted_time"`
+		}{
+			ID:        m.ID,
+			Title:     m.Title,
+			Status:    m.Status,
+			IsPaid:    m.IsPaid,
+			Price:     m.Price,
+			CreatedAt: m.CreatedAt,
+		}
+
+		// Adiciona o conteúdo apenas se for pública
+		if m.Status == "public" {
+			// TODO: Descriptografar o conteúdo
+			memory.Content = m.HashedContent
+		}
+
+		// Adiciona informações do usuário
+		memory.User.ID = m.UserID
+		memory.User.Username = m.Username
+
+		// Formata o tempo
+		memory.FormattedTime = m.CreatedAt.Format(timeTemplate)
+
+		memories = append(memories, memory)
+	}
+
+	// Renderiza o template parcial com as memórias
+	err = pageTemplates.ExecuteTemplate(w, "memories", memories)
+	if err != nil {
+		http.Error(w, "Erro ao renderizar memórias", http.StatusInternalServerError)
+		return
+	}
 }

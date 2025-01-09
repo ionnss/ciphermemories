@@ -29,6 +29,7 @@ func ConfigureRoutes(r *mux.Router) {
 	public.HandleFunc("/register", handlers.RegisterUser).Methods("POST")
 	public.HandleFunc("/verify", handlers.VerifyEmail).Methods("GET")
 	public.HandleFunc("/login", handlers.LoginUser).Methods("POST")
+	public.HandleFunc("/total-ciphered-memories", handlers.IndexMemoriesCount).Methods("GET")
 
 	// Rotas protegidas com SecurityMiddleware E AuthMiddleware
 	protected := r.PathPrefix("").Subrouter()
@@ -39,4 +40,5 @@ func ConfigureRoutes(r *mux.Router) {
 	protected.HandleFunc("/dashboard", handlers.DashboardPage).Methods("GET")
 	protected.HandleFunc("/logout", handlers.LogoutUser).Methods("POST")
 	protected.HandleFunc("/create-memory", handlers.CreateMemory).Methods("POST")
+	protected.HandleFunc("/memories", handlers.GetMemories).Methods("GET")
 }

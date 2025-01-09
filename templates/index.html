@@ -84,7 +84,9 @@
                 <!-- Mysterious Counter -->
                 <div class="mt-5 text-white-50">
                     <small class="brand-text">
-                        <span id="memoryCount">●●●●●</span> memories encrypted
+                        <span id="memoryCount" 
+                              hx-get="/total-ciphered-memories" 
+                              hx-trigger="load, every 30s">●●●●●</span> memories encrypted
                     </small>
                 </div>
             </div>
