@@ -1,6 +1,9 @@
 # Em desenvolvimento, use localhost
 localhost {
     encode gzip
+    
+    # Force HTTPS
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
     header {
         X-Frame-Options "SAMEORIGIN"
@@ -29,8 +32,13 @@ localhost {
     }
 }
 
+# Global redirect for HTTP to HTTPS
+http:// {
+    redir https://{host}{uri} permanent
+}
+
 # Catch-all for IP access
-:443, :80 {
+:80, :443 {
     redir https://ciphermemories.com{uri} permanent
 }
 
@@ -42,6 +50,9 @@ www.ciphermemories.com {
 # Configuração principal do domínio
 ciphermemories.com {
     encode gzip
+    
+    # Force HTTPS
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
     header {
         X-Frame-Options "SAMEORIGIN"
