@@ -211,7 +211,7 @@ type LoginResponse struct {
 func LoginUser(w http.ResponseWriter, r *http.Request) {
 	// Only allow POST method
 	if r.Method != http.MethodPost {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 
@@ -275,6 +275,11 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	session.Values["username"] = user.Username
 	session.Values["last_activity"] = time.Now().Unix()
 
+	// Set secure headers
+	w.Header().Set("Cache-Control", "no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+
 	fmt.Printf("Login: setting session values: %+v\n", session.Values)
 	fmt.Printf("Login: session options: %+v\n", session.Options)
 
@@ -286,8 +291,9 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Login successful for user ID: %d\n", user.ID)
 
-	// Redirect to dashboard
-	http.Redirect(w, r, "/dashboard", http.StatusFound)
+	// Redirect to dashboard with proper headers
+	w.Header().Set("Location", "/dashboard")
+	w.WriteHeader(http.StatusFound)
 }
 
 // LogoutUser handles user logout

@@ -78,7 +78,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			if r.Header.Get("HX-Request") == "true" {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			} else {
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				w.Header().Set("Cache-Control", "no-store, must-revalidate")
+				w.Header().Set("Pragma", "no-cache")
+				w.Header().Set("Expires", "0")
+				http.Redirect(w, r, "/login", http.StatusFound)
 			}
 			return
 		}
@@ -88,7 +91,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			if r.Header.Get("HX-Request") == "true" {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			} else {
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				w.Header().Set("Cache-Control", "no-store, must-revalidate")
+				w.Header().Set("Pragma", "no-cache")
+				w.Header().Set("Expires", "0")
+				http.Redirect(w, r, "/login", http.StatusFound)
 			}
 			return
 		}
@@ -101,7 +107,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 				if r.Header.Get("HX-Request") == "true" {
 					http.Error(w, "Session expired", http.StatusUnauthorized)
 				} else {
-					http.Redirect(w, r, "/login", http.StatusSeeOther)
+					w.Header().Set("Cache-Control", "no-store, must-revalidate")
+					w.Header().Set("Pragma", "no-cache")
+					w.Header().Set("Expires", "0")
+					http.Redirect(w, r, "/login", http.StatusFound)
 				}
 				return
 			}
