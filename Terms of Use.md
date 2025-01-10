@@ -32,9 +32,6 @@ The user expressly acknowledges and accepts that:
 ### 3.3 Legal Compliance
 While the platform cannot technically prevent or detect illegal content:
 - Users must comply with all applicable laws
-- The platform maintains encrypted logs of metadata (timestamps, IPs) for legal purposes
-- In case of legal investigation, these metadata may be provided to authorities
-- The encryption does not protect users from legal consequences of their actions
 
 ## 4. Consequences of Violation
 ### 4.1 Legal Violations
