@@ -38,7 +38,7 @@
         <div class="create-memory-card">
             <div class="card">
                 <div class="card-body">
-                    <form id="createMemoryForm" hx-post="/create-memory" hx-swap="none">
+                    <form id="createMemoryForm">
                         <!-- Área para mensagens -->
                         <div id="form-messages" class="alert alert-danger d-none mb-3"></div>
 
@@ -247,7 +247,117 @@
         document.querySelector('.new-memories-banner').addEventListener('click', function() {
             this.classList.add('d-none');
             refreshMemoriesFeed();
+        });
 
+        // Efeito de Criptografia no Botão
+        document.getElementById('createMemoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Previne o submit padrão
+            
+            const form = this;
+            const button = form.querySelector('button[type="submit"]');
+            const originalText = button.textContent;
+
+            // Se o botão já estiver desabilitado, não faz nada
+            if (button.disabled) return;
+
+            // Desabilita o botão e adiciona classe de animação
+            button.disabled = true;
+            button.classList.add('btn-encrypting');
+
+            // Wrap do texto para animação
+            button.innerHTML = '<span class="encrypt-text">' + originalText + '</span>';
+            
+            // Caracteres para o efeito de criptografia
+            const cryptoChars = '※☆○◎◇$#@&!%ꙬѪѬꝞꝠꞲꞬ𐑂𐍊𑣘';
+            const textSpan = button.querySelector('.encrypt-text');
+            
+            // Animação de caracteres
+            let encryptionAnimation = setInterval(() => {
+                let newText = '';
+                for (let char of originalText) {
+                    if (Math.random() < 0.3) { // 30% de chance de substituir cada caractere
+                        newText += cryptoChars[Math.floor(Math.random() * cryptoChars.length)];
+                    } else {
+                        newText += char;
+                    }
+                }
+                textSpan.textContent = newText;
+            }, 100);
+
+            try {
+                // Coleta os valores do formulário antes da animação
+                const formData = {
+                    title: form.querySelector('input[name="title"]').value,
+                    content: form.querySelector('textarea[name="content"]').value,
+                    status: form.querySelector('input[name="status"]').value,
+                    is_paid: form.querySelector('input[name="is_paid"]').value,
+                    price: form.querySelector('input[name="price"]').value
+                };
+
+                // Aguarda o tempo da animação
+                await new Promise(resolve => setTimeout(resolve, 2500));
+                
+                // Faz o request HTMX após a animação
+                const response = await htmx.ajax('POST', '/create-memory', {
+                    target: form,
+                    swap: 'none',
+                    values: formData
+                });
+
+                // Processa a resposta manualmente
+                const headers = response.getAllResponseHeaders();
+                if (headers.includes('HX-Trigger')) {
+                    const triggerHeader = response.getResponseHeader('HX-Trigger');
+                    if (triggerHeader) {
+                        const triggers = JSON.parse(triggerHeader);
+                        if (triggers.showMessage) {
+                            const messageDiv = document.getElementById('form-messages');
+                            messageDiv.textContent = triggers.showMessage;
+                            messageDiv.classList.remove('d-none');
+                            
+                            if (triggers.showMessage === "Memory Ciphered!") {
+                                messageDiv.classList.remove('alert-danger');
+                                messageDiv.classList.add('alert-success');
+                                refreshMemoriesFeed();
+                            }
+
+                            setTimeout(() => {
+                                messageDiv.classList.add('d-none');
+                                messageDiv.classList.remove('alert-success');
+                                messageDiv.classList.add('alert-danger');
+                                messageDiv.textContent = '';
+                            }, 3000);
+                        }
+
+                        if (triggers.clearForm) {
+                            form.reset();
+                            const lockIcon = form.querySelector('.btn-icon i.fa-lock-open');
+                            if (lockIcon) {
+                                lockIcon.classList.replace('fa-lock-open', 'fa-lock');
+                            }
+
+                            const dollarIcon = form.querySelector('.fa-dollar-sign.text-success');
+                            if (dollarIcon) {
+                                dollarIcon.classList.replace('text-success', 'text-danger');
+                            }
+
+                            form.querySelector('input[name="price"]').classList.add('d-none');
+                            form.querySelector('input[name="status"]').value = 'private';
+                            form.querySelector('input[name="is_paid"]').value = 'false';
+                            form.querySelector('input[name="price"]').value = '10';
+
+                            const textarea = form.querySelector('textarea[name="content"]');
+                            textarea.style.height = '60px';
+                        }
+                    }
+                }
+            } finally {
+                // Limpa a animação e restaura o botão
+                clearInterval(encryptionAnimation);
+                button.innerHTML = originalText;
+                button.disabled = false;
+                button.classList.remove('btn-encrypting');
+            }
         });
     </script>
 </body>
