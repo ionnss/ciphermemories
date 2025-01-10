@@ -3,4 +3,5 @@ static/uploads/avatars/*
 # But keep the directory
 !static/uploads/avatars/.gitkeep 
 
-#
+# Ignore local env file
+.env.local
