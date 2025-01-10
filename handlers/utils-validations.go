@@ -40,7 +40,7 @@ func init() {
 		MaxAge:   86400 * 7, // 7 dias
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 	}
 
 	// Debug da configuração

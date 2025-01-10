@@ -287,7 +287,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Login successful for user ID: %d\n", user.ID)
 
 	// Redirect to dashboard
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
 // LogoutUser handles user logout
