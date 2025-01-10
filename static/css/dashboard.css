@@ -197,8 +197,19 @@ body {
 }
 
 .memory-author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     color: #666;
     font-size: 0.85rem;
+}
+
+.memory-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #2d2d2d20;
 }
 
 /* Scrollbar */

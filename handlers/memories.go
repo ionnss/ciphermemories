@@ -198,7 +198,7 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 	query := `
 		SELECT m.id, m.title, m.hashed_content, m.hashed_key, m.encryption_iv, m.encryption_tag,
 			   m.status, m.is_paid, m.price, m.created_at,
-			   u.id as user_id, u.username
+			   u.id as user_id, u.username, COALESCE(u.avatar_url, '/static/assets/default-avatar.png') as avatar_url
 		FROM memories m
 		JOIN users u ON m.creator_id = u.id
 		ORDER BY m.created_at DESC
@@ -226,8 +226,9 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 		Price     int       `json:"price"`
 		CreatedAt time.Time `json:"created_at"`
 		User      struct {
-			ID       int64  `json:"id"`
-			Username string `json:"username"`
+			ID        int64  `json:"id"`
+			Username  string `json:"username"`
+			AvatarURL string `json:"avatar_url"`
 		} `json:"user"`
 		FormattedTime string `json:"formatted_time"`
 	}
@@ -246,12 +247,13 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 			CreatedAt     time.Time
 			UserID        int64
 			Username      string
+			AvatarURL     string
 		}
 
 		err := rows.Scan(
 			&m.ID, &m.Title, &m.HashedContent, &m.HashedKey, &m.EncryptionIV, &m.EncryptionTag,
 			&m.Status, &m.IsPaid, &m.Price, &m.CreatedAt,
-			&m.UserID, &m.Username,
+			&m.UserID, &m.Username, &m.AvatarURL,
 		)
 		if err != nil {
 			continue
@@ -266,8 +268,9 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 			Price     int       `json:"price"`
 			CreatedAt time.Time `json:"created_at"`
 			User      struct {
-				ID       int64  `json:"id"`
-				Username string `json:"username"`
+				ID        int64  `json:"id"`
+				Username  string `json:"username"`
+				AvatarURL string `json:"avatar_url"`
 			} `json:"user"`
 			FormattedTime string `json:"formatted_time"`
 		}{
@@ -320,6 +323,7 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 		// Adiciona informações do usuário
 		memory.User.ID = m.UserID
 		memory.User.Username = m.Username
+		memory.User.AvatarURL = m.AvatarURL
 
 		// Formata o tempo
 		memory.FormattedTime = m.CreatedAt.Format(timeTemplate)
