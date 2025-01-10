@@ -29,6 +29,11 @@ localhost {
     }
 }
 
+# Catch-all for IP access
+:443, :80 {
+    redir https://ciphermemories.com{uri} permanent
+}
+
 # Redirecionamento de www para non-www
 www.ciphermemories.com {
     redir https://ciphermemories.com{uri} permanent
