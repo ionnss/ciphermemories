@@ -26,6 +26,4 @@ CREATE TABLE IF NOT EXISTS memories_access (
 CREATE INDEX IF NOT EXISTS idx_memory_id ON memories_access (memory_id);
 CREATE INDEX IF NOT EXISTS idx_buyer_id ON memories_access (buyer_id);
 
-UPDATE users
-SET avatar_url = '/static/assets/default-avatar.png'
-WHERE id = 1;
+
