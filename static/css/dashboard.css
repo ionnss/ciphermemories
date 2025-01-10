@@ -156,9 +156,33 @@ body {
     margin-bottom: 0.5rem;
 }
 
+.memory-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .memory-title {
     font-weight: 600;
     font-size: 1.1rem;
+    flex: 1;
+}
+
+.memory-author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.memory-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #2d2d2d20;
 }
 
 .memory-time {
@@ -193,23 +217,7 @@ body {
 .memory-info {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
-}
-
-.memory-author {
-    display: flex;
-    align-items: center;
     gap: 0.5rem;
-    color: #666;
-    font-size: 0.85rem;
-}
-
-.memory-avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #2d2d2d20;
 }
 
 /* Scrollbar */

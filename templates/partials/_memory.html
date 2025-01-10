@@ -2,11 +2,11 @@
 <div class="memory-item" data-timestamp="{{.CreatedAt.Unix}}">
     <div class="memory-header">
         <div class="memory-info">
-            <div class="memory-title">{{.Title}}</div>
             <div class="memory-author">
                 <img src="{{.User.AvatarURL}}" alt="@{{.User.Username}}" class="memory-avatar">
                 <span>@{{.User.Username}}</span>
             </div>
+            <div class="memory-title">{{.Title}}</div>
         </div>
         <div class="memory-time">{{.FormattedTime}}</div>
     </div>
