@@ -1,0 +1,6 @@
+# Ignore all files in uploads/avatars
+static/uploads/avatars/*
+# But keep the directory
+!static/uploads/avatars/.gitkeep 
+
+#

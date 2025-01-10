@@ -4,6 +4,8 @@ go 1.23.4
 
 require (
 	github.com/cloudinary/cloudinary-go/v2 v2.9.0
+	github.com/disintegration/imaging v1.6.2
+	github.com/google/uuid v1.5.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/sessions v1.4.0
 	github.com/lib/pq v1.10.9
@@ -14,7 +16,7 @@ require (
 
 require (
 	github.com/creasty/defaults v1.7.0 // indirect
-	github.com/google/uuid v1.5.0 // indirect
 	github.com/gorilla/schema v1.4.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 )

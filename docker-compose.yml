@@ -21,6 +21,7 @@ services:
     volumes:
       - .:/app
       - ./templates:/ciphermemories/templates
+      - ./static/uploads:/ciphermemories/static/uploads
     networks:
       - ciphermemories_network
     depends_on:

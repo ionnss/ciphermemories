@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"ciphermemories/db"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -67,27 +66,15 @@ func PrivacyPage(w http.ResponseWriter, r *http.Request) {
 
 // DashboardPage serves the dashboard page/partial
 func DashboardPage(w http.ResponseWriter, r *http.Request) {
-	// Get user data from session
-	session, _ := Store.Get(r, "session-ciphermemories")
-	userID := session.Values["user_id"].(int)
-
-	// Get user data from database
-	var user struct {
-		ID        int
-		Username  string
-		AvatarURL string
-	}
-
-	err := db.DB.QueryRow(`
-		SELECT id, username, COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url
-		FROM users 
-		WHERE id = $1
-	`, userID).Scan(&user.ID, &user.Username, &user.AvatarURL)
-
-	if err != nil {
+	// Get user from session using our updated GetUserFromSession function
+	user := GetUserFromSession(r)
+	if user == nil {
 		http.Error(w, "Error loading user data", http.StatusInternalServerError)
 		return
 	}
+
+	// Debug logging
+	fmt.Printf("DashboardPage: User data: %+v\n", user)
 
 	// Execute template with user data
 	data := map[string]interface{}{
@@ -95,8 +82,9 @@ func DashboardPage(w http.ResponseWriter, r *http.Request) {
 		"CurrentPage": "dashboard",
 	}
 
-	err = pageTemplates.ExecuteTemplate(w, "dashboard.html", data)
+	err := pageTemplates.ExecuteTemplate(w, "dashboard.html", data)
 	if err != nil {
+		fmt.Printf("DashboardPage: Template error: %v\n", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -120,4 +108,14 @@ func RenderTemplate(w http.ResponseWriter, templateName string, data interface{}
 		return
 	}
 	fmt.Printf("RenderTemplate: completed successfully\n")
+}
+
+// SettingsPage serves the settings page/partial
+func SettingsPage(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an HTMX request
+	if r.Header.Get("HX-Request") == "true" {
+		http.ServeFile(w, r, "templates/settings.html")
+		return
+	}
+	http.ServeFile(w, r, "templates/settings.html")
 }

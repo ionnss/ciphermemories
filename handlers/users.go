@@ -103,9 +103,9 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	// Insert user into database
 	_, err = db.DB.Exec(`
-		INSERT INTO users (email, username, hashed_password, verification_token)
-		VALUES ($1, $2, $3, $4)
-	`, email, username, string(hashedPassword), verificationToken)
+		INSERT INTO users (email, username, hashed_password, verification_token, avatar_url)
+		VALUES ($1, $2, $3, $4, $5)
+	`, email, username, string(hashedPassword), verificationToken, "/static/assets/default-avatar.png")
 
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
@@ -364,14 +364,30 @@ func GetUserFromSession(r *http.Request) *models.User {
 
 	fmt.Printf("GetUserFromSession: found userID: %d\n", userID)
 
-	// Busca usuário no banco pelo ID
-	user, err := GetUserByID(int64(userID))
+	// Get user from database with COALESCE for avatar_url
+	var user models.User
+	err = db.DB.QueryRow(`
+		SELECT id, username, email, 
+			   COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url,
+			   created_at, updated_at
+		FROM users 
+		WHERE id = $1
+	`, userID).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.AvatarURL,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
 	if err != nil {
 		fmt.Printf("GetUserFromSession failed: error getting user from DB: %v\n", err)
 		return nil
 	}
 
-	return user
+	fmt.Printf("GetUserFromSession: loaded user data: %+v\n", user)
+	return &user
 }
 
 // GetUserByUsername busca um usuário pelo username
@@ -379,13 +395,14 @@ func GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
 
 	err := db.DB.QueryRow(`
-		SELECT id, username, email, created_at, updated_at
+		SELECT id, username, email, COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url, created_at, updated_at
 		FROM users 
 		WHERE username = $1
 	`, username).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
+		&user.AvatarURL,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -401,13 +418,14 @@ func GetUserByID(userID int64) (*models.User, error) {
 	var user models.User
 
 	err := db.DB.QueryRow(`
-		SELECT id, username, email, created_at, updated_at
+		SELECT id, username, email, COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url, created_at, updated_at
 		FROM users 
 		WHERE id = $1
 	`, userID).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
+		&user.AvatarURL,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)

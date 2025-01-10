@@ -42,4 +42,8 @@ func ConfigureRoutes(r *mux.Router) {
 	protected.HandleFunc("/create-memory", handlers.CreateMemory).Methods("POST")
 	protected.HandleFunc("/memories", handlers.GetMemories).Methods("GET")
 	protected.HandleFunc("/memories/check-new", handlers.CheckNewMemories).Methods("GET")
+
+	// Protected pages
+	protected.HandleFunc("/settings", handlers.RenderSettings).Methods("GET")
+	protected.HandleFunc("/settings/avatar", handlers.HandleAvatarUpload).Methods("POST")
 }

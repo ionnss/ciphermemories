@@ -198,7 +198,8 @@ func GetMemories(w http.ResponseWriter, r *http.Request) {
 	query := `
 		SELECT m.id, m.title, m.hashed_content, m.hashed_key, m.encryption_iv, m.encryption_tag,
 			   m.status, m.is_paid, m.price, m.created_at,
-			   u.id as user_id, u.username, COALESCE(u.avatar_url, '/static/assets/default-avatar.png') as avatar_url
+			   u.id as user_id, u.username, 
+			   COALESCE(u.avatar_url, '/static/assets/default-avatar.png') as avatar_url
 		FROM memories m
 		JOIN users u ON m.creator_id = u.id
 		ORDER BY m.created_at DESC
