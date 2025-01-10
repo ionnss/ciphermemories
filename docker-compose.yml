@@ -27,7 +27,7 @@ services:
     depends_on:
       - db
     env_file:
-      - .env
+      - .env.local
     working_dir: /ciphermemories
     command: ["/wait-for-it.sh", "db:5432", "-t", "45", "--", "/ciphermemories/app_ciphermemories"]
 

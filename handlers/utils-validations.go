@@ -36,10 +36,11 @@ func init() {
 	// Configuração segura para o cookie de sessão
 	Store.Options = &sessions.Options{
 		Path:     "/",
+		Domain:   os.Getenv("COOKIE_DOMAIN"),
 		MaxAge:   86400 * 7, // 7 dias
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	// Debug da configuração
