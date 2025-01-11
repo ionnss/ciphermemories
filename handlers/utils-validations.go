@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"ciphermemories/db"
+	"ciphermemories/models"
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
@@ -33,17 +35,24 @@ func init() {
 
 	fmt.Printf("Session store initialized with key length: %d\n", len(os.Getenv("SESSION_KEY")))
 
-	// Configuração segura para o cookie de sessão
+	// Get initial cookie domain from env
+	cookieDomain := os.Getenv("COOKIE_DOMAIN")
+	if strings.Contains(os.Getenv("HOST"), "localhost") ||
+		strings.Contains(os.Getenv("HOST"), "127.0.0.1") {
+		cookieDomain = "" // Empty domain for localhost
+	}
+	fmt.Printf("Initial cookie domain from env: %s\n", cookieDomain)
+
+	// Configure store options
 	Store.Options = &sessions.Options{
 		Path:     "/",
-		Domain:   os.Getenv("COOKIE_DOMAIN"),
-		MaxAge:   86400 * 7, // 7 dias
+		Domain:   cookieDomain,
+		MaxAge:   86400 * 7,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	}
 
-	// Debug da configuração
 	fmt.Printf("Cookie store initialized with options: %+v\n", Store.Options)
 }
 
@@ -87,7 +96,38 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userID int64, usernam
 	session.Values["created_at"] = time.Now().Unix()
 	session.Values["last_activity"] = time.Now().Unix()
 
-	return session.Save(r, w)
+	// Get the host from the request
+	host := r.Host
+	fmt.Printf("Request host: %s\n", host)
+
+	// Set cookie domain based on environment
+	cookieDomain := os.Getenv("COOKIE_DOMAIN")
+	if strings.Contains(host, "localhost") || strings.Contains(host, "127.0.0.1") {
+		cookieDomain = "" // Empty domain for localhost
+	}
+
+	// Ensure cookie settings are correct
+	session.Options = &sessions.Options{
+		Path:     "/",
+		Domain:   cookieDomain,
+		MaxAge:   86400 * 7, // 7 days
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	fmt.Printf("Creating session with version: %s and domain: %s\n",
+		os.Getenv("APP_VERSION"),
+		cookieDomain)
+
+	err := session.Save(r, w)
+	if err != nil {
+		fmt.Printf("Error saving session: %v\n", err)
+		return err
+	}
+
+	fmt.Printf("Session saved successfully with domain: %s\n", cookieDomain)
+	return nil
 }
 
 // LogSessionIssue registra problemas com a sessão
@@ -111,9 +151,14 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
+	// Add debug logging here
+	sessionVersion, ok := session.Values["version"].(string)
+	envVersion := os.Getenv("APP_VERSION")
+	fmt.Printf("Session Version: %v (ok=%v), ENV Version: %s\n", sessionVersion, ok, envVersion)
+
 	// Verifica a versão do app
-	if version, ok := session.Values["version"].(string); !ok || version != os.Getenv("APP_VERSION") {
-		LogSessionIssue(r, "Invalid app version")
+	if !ok || sessionVersion != envVersion {
+		LogSessionIssue(r, fmt.Sprintf("Invalid app version - Session: %v, ENV: %s", sessionVersion, envVersion))
 		ClearSession(w, r)
 		return false
 	}
@@ -487,4 +532,46 @@ func DecryptContent(hashedContent string, key []byte, iv []byte, tag string) (st
 	}
 
 	return string(plaintext), nil
+}
+
+func GetUserFromSession(r *http.Request) *models.User {
+	session, err := Store.Get(r, "session-ciphermemories")
+	if err != nil {
+		fmt.Printf("GetUserFromSession failed: error getting session: %v\n", err)
+		fmt.Printf("Request cookies: %+v\n", r.Cookies())
+		return nil
+	}
+
+	// Debug: print all session values
+	fmt.Printf("Session values: %+v\n", session.Values)
+	fmt.Printf("Session options: %+v\n", session.Options)
+
+	userID, ok := session.Values["user_id"].(int64)
+	if !ok {
+		fmt.Printf("GetUserFromSession failed: could not convert user_id to int64. Value: %v, Type: %T\n",
+			session.Values["user_id"], session.Values["user_id"])
+		return nil
+	}
+
+	// Get user from database
+	var user models.User
+	err = db.DB.QueryRow(`
+		SELECT id, username, email, avatar_url, created_at, updated_at
+		FROM users 
+		WHERE id = $1
+	`, userID).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.AvatarURL,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		fmt.Printf("GetUserFromSession failed: error getting user from database: %v\n", err)
+		return nil
+	}
+
+	return &user
 }
