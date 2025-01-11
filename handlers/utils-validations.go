@@ -47,19 +47,110 @@ func init() {
 	fmt.Printf("Cookie store initialized with options: %+v\n", Store.Options)
 }
 
+// ClearSession limpa a sessão atual e seus cookies relacionados
+func ClearSession(w http.ResponseWriter, r *http.Request) {
+	session, _ := Store.Get(r, "session-ciphermemories")
+	session.Options.MaxAge = -1
+	session.Values = make(map[interface{}]interface{})
+	session.Save(r, w)
+
+	// Limpa outros cookies relacionados
+	for _, cookie := range r.Cookies() {
+		if strings.HasPrefix(cookie.Name, "cipher_") {
+			c := &http.Cookie{
+				Name:     cookie.Name,
+				Value:    "",
+				Path:     "/",
+				Domain:   os.Getenv("COOKIE_DOMAIN"),
+				MaxAge:   -1,
+				HttpOnly: true,
+				Secure:   true,
+				SameSite: http.SameSiteLaxMode,
+			}
+			http.SetCookie(w, c)
+		}
+	}
+}
+
+// createSession cria uma nova sessão com os valores apropriados
+func createSession(w http.ResponseWriter, r *http.Request, userID int64, username string) error {
+	session, _ := Store.Get(r, "session-ciphermemories")
+
+	// Limpa qualquer sessão existente
+	session.Values = make(map[interface{}]interface{})
+
+	// Define os valores da sessão
+	session.Values["authenticated"] = true
+	session.Values["user_id"] = userID
+	session.Values["username"] = username
+	session.Values["version"] = os.Getenv("APP_VERSION")
+	session.Values["created_at"] = time.Now().Unix()
+	session.Values["last_activity"] = time.Now().Unix()
+
+	return session.Save(r, w)
+}
+
+// logSessionIssue registra problemas com a sessão
+func logSessionIssue(r *http.Request, issue string) {
+	userID := "unknown"
+	if session, err := Store.Get(r, "session-ciphermemories"); err == nil {
+		if id, ok := session.Values["user_id"].(int64); ok {
+			userID = fmt.Sprintf("%d", id)
+		}
+	}
+
+	fmt.Printf("Session issue: %s, User: %s, Time: %s\n",
+		issue, userID, time.Now().Format(time.RFC3339))
+}
+
+// validateSession verifica se a sessão é válida
+func validateSession(w http.ResponseWriter, r *http.Request) bool {
+	session, err := Store.Get(r, "session-ciphermemories")
+	if err != nil {
+		logSessionIssue(r, fmt.Sprintf("Error getting session: %v", err))
+		return false
+	}
+
+	// Verifica a versão do app
+	if version, ok := session.Values["version"].(string); !ok || version != os.Getenv("APP_VERSION") {
+		logSessionIssue(r, "Invalid app version")
+		ClearSession(w, r)
+		return false
+	}
+
+	// Verifica a idade da sessão
+	if created, ok := session.Values["created_at"].(int64); ok {
+		if time.Now().Unix()-created > 7*24*60*60 { // 7 dias
+			logSessionIssue(r, "Session expired (age)")
+			ClearSession(w, r)
+			return false
+		}
+	}
+
+	// Verifica última atividade
+	if lastActivity, ok := session.Values["last_activity"].(int64); ok {
+		if time.Now().Unix()-lastActivity > 3600 { // 1 hora
+			logSessionIssue(r, "Session expired (inactivity)")
+			ClearSession(w, r)
+			return false
+		}
+	}
+
+	return true
+}
+
 // AuthHandler verifies if the user is authenticated
 //
 // receives: w http.ResponseWriter, r *http.Request
 //
 // returns: error
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := Store.Get(r, "session-ciphermemories")
-	if err != nil {
+	if !validateSession(w, r) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	// Verifica se o usuário está autenticado
+	session, _ := Store.Get(r, "session-ciphermemories")
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -73,8 +164,7 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 // returns: http.Handler
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, err := Store.Get(r, "session-ciphermemories")
-		if err != nil {
+		if !validateSession(w, r) {
 			if r.Header.Get("HX-Request") == "true" {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			} else {
@@ -86,7 +176,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Verifica se o usuário está autenticado
+		session, _ := Store.Get(r, "session-ciphermemories")
 		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
 			if r.Header.Get("HX-Request") == "true" {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -97,23 +187,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 				http.Redirect(w, r, "/login", http.StatusFound)
 			}
 			return
-		}
-
-		// Verifica se a sessão expirou
-		if lastActivity, ok := session.Values["last_activity"].(int64); ok {
-			if time.Now().Unix()-lastActivity > 3600 { // 1 hora
-				session.Options.MaxAge = -1
-				session.Save(r, w)
-				if r.Header.Get("HX-Request") == "true" {
-					http.Error(w, "Session expired", http.StatusUnauthorized)
-				} else {
-					w.Header().Set("Cache-Control", "no-store, must-revalidate")
-					w.Header().Set("Pragma", "no-cache")
-					w.Header().Set("Expires", "0")
-					http.Redirect(w, r, "/login", http.StatusFound)
-				}
-				return
-			}
 		}
 
 		// Atualiza o último acesso

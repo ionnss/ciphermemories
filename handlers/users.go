@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -197,13 +196,6 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 // LoginUser handles user login
-type LoginResponse struct {
-	Success     bool   `json:"success"`
-	Message     string `json:"message"`
-	RedirectURL string `json:"redirect_url"`
-}
-
-// LoginUser handles user login
 //
 // receives: w http.ResponseWriter, r *http.Request
 //
@@ -233,7 +225,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	// Get user from database
 	var user struct {
-		ID             int
+		ID             int64
 		Username       string
 		HashedPassword string
 		VerifiedEmail  bool
@@ -262,32 +254,19 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create session
-	session, err := Store.Get(r, "session-ciphermemories")
-	if err != nil {
+	// Clear any existing session
+	ClearSession(w, r)
+
+	// Create new session
+	if err := createSession(w, r, user.ID, user.Username); err != nil {
 		http.Error(w, "Error creating session", http.StatusInternalServerError)
 		return
 	}
-
-	// Set session values
-	session.Values["authenticated"] = true
-	session.Values["user_id"] = user.ID
-	session.Values["username"] = user.Username
-	session.Values["last_activity"] = time.Now().Unix()
 
 	// Set secure headers
 	w.Header().Set("Cache-Control", "no-store, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
-
-	fmt.Printf("Login: setting session values: %+v\n", session.Values)
-	fmt.Printf("Login: session options: %+v\n", session.Options)
-
-	// Save session
-	if err := session.Save(r, w); err != nil {
-		http.Error(w, "Error saving session", http.StatusInternalServerError)
-		return
-	}
 
 	fmt.Printf("Login successful for user ID: %d\n", user.ID)
 
@@ -302,23 +281,8 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 //
 // returns: void
 func LogoutUser(w http.ResponseWriter, r *http.Request) {
-	session, err := Store.Get(r, "session-ciphermemories")
-	if err != nil {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Error getting session"}`)
-		http.Error(w, "Error getting session", http.StatusInternalServerError)
-		return
-	}
-
-	// Limpa a sessão
-	session.Options.MaxAge = -1
-	session.Values = make(map[interface{}]interface{})
-
-	// Salva as alterações
-	if err := session.Save(r, w); err != nil {
-		w.Header().Set("HX-Trigger", `{"showMessage": "Error saving session"}`)
-		http.Error(w, "Error saving session", http.StatusInternalServerError)
-		return
-	}
+	// Clear the session and all related cookies
+	ClearSession(w, r)
 
 	// Redirect to index
 	http.Redirect(w, r, "/", http.StatusSeeOther)

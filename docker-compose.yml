@@ -18,6 +18,7 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - SMTP_ENCRYPTION=${SMTP_ENCRYPTION}
       - COOKIE_DOMAIN=${COOKIE_DOMAIN}
+      - APP_VERSION=${APP_VERSION}
     volumes:
       - .:/app
       - ./templates:/ciphermemories/templates
