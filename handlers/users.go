@@ -258,7 +258,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	ClearSession(w, r)
 
 	// Create new session
-	if err := createSession(w, r, user.ID, user.Username); err != nil {
+	if err := CreateSession(w, r, user.ID, user.Username); err != nil {
 		http.Error(w, "Error creating session", http.StatusInternalServerError)
 		return
 	}
