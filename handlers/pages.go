@@ -66,6 +66,12 @@ func PrivacyPage(w http.ResponseWriter, r *http.Request) {
 
 // DashboardPage serves the dashboard page/partial
 func DashboardPage(w http.ResponseWriter, r *http.Request) {
+
+	if !ValidateSession(w, r) {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+
 	// Get user from session using our updated GetUserFromSession function
 	user := GetUserFromSession(r)
 	if user == nil {
@@ -74,7 +80,7 @@ func DashboardPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Debug logging
-	fmt.Printf("DashboardPage: User data: %+v\n", user)
+	//fmt.Printf("DashboardPage: User data: %+v\n", user)
 
 	// Execute template with user data
 	data := map[string]interface{}{

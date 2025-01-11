@@ -201,27 +201,18 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 //
 // returns: void
 func LoginUser(w http.ResponseWriter, r *http.Request) {
-	// Only allow POST method
 	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 
-	// Parse form data
 	if err := r.ParseForm(); err != nil {
+		fmt.Printf("[ERROR] Failed to parse login form\n")
 		http.Error(w, "Invalid form data", http.StatusBadRequest)
 		return
 	}
 
-	// Get and sanitize form values
 	email := SanitizeInput(strings.ToLower(r.FormValue("email")))
-	password := r.FormValue("password")
-
-	// Validate input
-	if !ValidateEmail(email) {
-		http.Error(w, "Invalid email format", http.StatusBadRequest)
-		return
-	}
 
 	// Get user from database
 	var user struct {
@@ -238,18 +229,20 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	`, email).Scan(&user.ID, &user.Username, &user.HashedPassword, &user.VerifiedEmail)
 
 	if err != nil {
+		fmt.Printf("[INFO] Login attempt failed: invalid credentials\n")
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
 	// Verify password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(r.FormValue("password"))); err != nil {
+		fmt.Printf("[INFO] Login attempt failed: invalid credentials\n")
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
-	// Check if email is verified
 	if !user.VerifiedEmail {
+		fmt.Printf("[INFO] Login attempt failed: email not verified\n")
 		http.Error(w, "Please verify your email before logging in", http.StatusUnauthorized)
 		return
 	}
@@ -259,24 +252,19 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	// Create new session
 	if err := CreateSession(w, r, user.ID, user.Username); err != nil {
+		fmt.Printf("[ERROR] Failed to create session\n")
 		http.Error(w, "Error creating session", http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Printf("Session created, checking if it exists...\n")
-	if session, err := Store.Get(r, "session-ciphermemories"); err == nil {
-		fmt.Printf("Session values before redirect: %+v\n", session.Values)
-		fmt.Printf("Session options before redirect: %+v\n", session.Options)
-	}
+	fmt.Printf("[INFO] Login successful\n")
 
 	// Set secure headers
 	w.Header().Set("Cache-Control", "no-store, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
 
-	fmt.Printf("Login successful for user ID: %d\n", user.ID)
-
-	// Redirect to dashboard with proper headers
+	// Redirect to dashboard
 	w.Header().Set("Location", "/dashboard")
 	w.WriteHeader(http.StatusFound)
 }

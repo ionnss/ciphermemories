@@ -61,34 +61,21 @@ func ClearSession(w http.ResponseWriter, r *http.Request) {
 	session, _ := Store.Get(r, "session-ciphermemories")
 	session.Options.MaxAge = -1
 	session.Values = make(map[interface{}]interface{})
-	session.Save(r, w)
 
-	// Limpa outros cookies relacionados
-	for _, cookie := range r.Cookies() {
-		if strings.HasPrefix(cookie.Name, "cipher_") {
-			c := &http.Cookie{
-				Name:     cookie.Name,
-				Value:    "",
-				Path:     "/",
-				Domain:   os.Getenv("COOKIE_DOMAIN"),
-				MaxAge:   -1,
-				HttpOnly: true,
-				Secure:   true,
-				SameSite: http.SameSiteLaxMode,
-			}
-			http.SetCookie(w, c)
-		}
+	if err := session.Save(r, w); err != nil {
+		fmt.Printf("[ERROR] Failed to clear session\n")
+		return
 	}
+
+	fmt.Printf("[INFO] Session cleared\n")
 }
 
 // CreateSession cria uma nova sessão com os valores apropriados
 func CreateSession(w http.ResponseWriter, r *http.Request, userID int64, username string) error {
 	session, _ := Store.Get(r, "session-ciphermemories")
-
-	// Limpa qualquer sessão existente
 	session.Values = make(map[interface{}]interface{})
 
-	// Define os valores da sessão
+	// Set session values
 	session.Values["authenticated"] = true
 	session.Values["user_id"] = userID
 	session.Values["username"] = username
@@ -96,37 +83,29 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userID int64, usernam
 	session.Values["created_at"] = time.Now().Unix()
 	session.Values["last_activity"] = time.Now().Unix()
 
-	// Get the host from the request
-	host := r.Host
-	fmt.Printf("Request host: %s\n", host)
-
-	// Set cookie domain based on environment
+	// Set cookie options
+	isLocalhost := strings.Contains(r.Host, "localhost") || strings.Contains(r.Host, "127.0.0.1")
 	cookieDomain := os.Getenv("COOKIE_DOMAIN")
-	if strings.Contains(host, "localhost") || strings.Contains(host, "127.0.0.1") {
-		cookieDomain = "" // Empty domain for localhost
+	if isLocalhost {
+		cookieDomain = ""
 	}
 
-	// Ensure cookie settings are correct
 	session.Options = &sessions.Options{
 		Path:     "/",
 		Domain:   cookieDomain,
-		MaxAge:   86400 * 7, // 7 days
+		MaxAge:   86400 * 7,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	}
 
-	fmt.Printf("Creating session with version: %s and domain: %s\n",
-		os.Getenv("APP_VERSION"),
-		cookieDomain)
-
 	err := session.Save(r, w)
 	if err != nil {
-		fmt.Printf("Error saving session: %v\n", err)
+		fmt.Printf("[ERROR] Failed to create session\n")
 		return err
 	}
 
-	fmt.Printf("Session saved successfully with domain: %s\n", cookieDomain)
+	fmt.Printf("[INFO] Session created successfully\n")
 	return nil
 }
 
@@ -147,35 +126,32 @@ func LogSessionIssue(r *http.Request, issue string) {
 func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 	session, err := Store.Get(r, "session-ciphermemories")
 	if err != nil {
-		LogSessionIssue(r, fmt.Sprintf("Error getting session: %v", err))
+		fmt.Printf("[ERROR] Session validation failed\n")
 		return false
 	}
 
-	// Add debug logging here
 	sessionVersion, ok := session.Values["version"].(string)
 	envVersion := os.Getenv("APP_VERSION")
-	fmt.Printf("Session Version: %v (ok=%v), ENV Version: %s\n", sessionVersion, ok, envVersion)
 
-	// Verifica a versão do app
 	if !ok || sessionVersion != envVersion {
-		LogSessionIssue(r, fmt.Sprintf("Invalid app version - Session: %v, ENV: %s", sessionVersion, envVersion))
+		fmt.Printf("[INFO] Session version check failed\n")
 		ClearSession(w, r)
 		return false
 	}
 
-	// Verifica a idade da sessão
+	// Check session age
 	if created, ok := session.Values["created_at"].(int64); ok {
-		if time.Now().Unix()-created > 7*24*60*60 { // 7 dias
-			LogSessionIssue(r, "Session expired (age)")
+		if time.Now().Unix()-created > 7*24*60*60 {
+			fmt.Printf("[INFO] Session expired (age)\n")
 			ClearSession(w, r)
 			return false
 		}
 	}
 
-	// Verifica última atividade
+	// Check last activity
 	if lastActivity, ok := session.Values["last_activity"].(int64); ok {
-		if time.Now().Unix()-lastActivity > 3600 { // 1 hora
-			LogSessionIssue(r, "Session expired (inactivity)")
+		if time.Now().Unix()-lastActivity > 3600 {
+			fmt.Printf("[INFO] Session expired (inactivity)\n")
 			ClearSession(w, r)
 			return false
 		}
@@ -537,19 +513,13 @@ func DecryptContent(hashedContent string, key []byte, iv []byte, tag string) (st
 func GetUserFromSession(r *http.Request) *models.User {
 	session, err := Store.Get(r, "session-ciphermemories")
 	if err != nil {
-		fmt.Printf("GetUserFromSession failed: error getting session: %v\n", err)
-		fmt.Printf("Request cookies: %+v\n", r.Cookies())
+		fmt.Printf("[ERROR] Failed to get session\n")
 		return nil
 	}
 
-	// Debug: print all session values
-	fmt.Printf("Session values: %+v\n", session.Values)
-	fmt.Printf("Session options: %+v\n", session.Options)
-
 	userID, ok := session.Values["user_id"].(int64)
 	if !ok {
-		fmt.Printf("GetUserFromSession failed: could not convert user_id to int64. Value: %v, Type: %T\n",
-			session.Values["user_id"], session.Values["user_id"])
+		fmt.Printf("[ERROR] Invalid session data\n")
 		return nil
 	}
 
@@ -569,7 +539,7 @@ func GetUserFromSession(r *http.Request) *models.User {
 	)
 
 	if err != nil {
-		fmt.Printf("GetUserFromSession failed: error getting user from database: %v\n", err)
+		fmt.Printf("[ERROR] Failed to get user data from database\n")
 		return nil
 	}
 
