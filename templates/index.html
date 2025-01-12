@@ -58,40 +58,45 @@
     </div>
     <main class="container-fluid py-5">
         <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
+            <div id="index-content" class="col-md-8 text-center">
                 <!-- Logo -->
-                <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo mb-4"
+                <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo mb-4 mt-4"
                     style="width: 100px; height: 100px;">
 
-                <!-- Memory Counter with Orbiting Elements -->
-                <div class="memory-counter-container position-relative mb-5">
-                    <div class="electron-orbit orbit-1">
-                        <div class="electron"></div>
-                    </div>
-                    <div class="electron-orbit orbit-2">
-                        <div class="electron"></div>
-                    </div>
-                    <div class="electron-orbit orbit-3">
-                        <div class="electron"></div>
-                    </div>
-                    <div class="counter-core">
-                        <span id="memoryCount" class="brand-text"
-                              hx-get="/total-ciphered-memories" 
-                              hx-trigger="load, every 30s">●●●●●</span>
-                        <small class="d-block text-white-50">memories encrypted</small>
+                <!-- Title Section -->
+                <div class="text-center mb-4">
+                    <h1 class="display-4 text-white brand-text mt-4 mb-4">CIPHER MEMORIES</h1>
+                    <h2 class="h4 text-white-50">Human Memories Repository</h2>
+                </div>
+                
+                <!-- Counter Box -->
+                <div class="row justify-content-center mb-5">
+                    <div class="col-lg-4 col-md-8 col-10">
+                        <div class="memory-box-container mx-auto">
+                            <div class="memory-box">
+                                <!-- Free Electrons -->
+                                <div class="memory-electron"></div>
+                                <div class="memory-electron"></div>
+                                <div class="memory-electron"></div>
+                                <div class="memory-electron"></div>
+                                <div class="memory-electron"></div>
+                                <div class="memory-electron"></div>
+                                <!-- Counter -->
+                                <div class="counter-content">
+                                    <span id="memoryCount" class="brand-text"
+                                          hx-get="/total-ciphered-memories" 
+                                          hx-trigger="load, every 30s">●●●●●</span>
+                                    <small>memories ciphered</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Title -->
-                <h1 class="display-4 text-white brand-text mb-4">CIPHER MEMORIES</h1>
-
-                <!-- Subtitle -->
-                <h2 class="h4 text-white-50 mb-3">Human Memories Repository</h2>
-
                 <!-- Mysterious Tagline -->
-                <p class="lead text-white-50 mb-5">
+                <!-- <p class="lead text-white-50 mb-5">
                     Some memories are meant to be encrypted forever
-                </p>
+                </p> -->
 
                 <!-- Features Section -->
                 <div class="row justify-content-center mb-5">
@@ -116,16 +121,15 @@
                                     Share open memories with the community, displaying both title and content in the universal feed.
                                 </p>
                             </div>
-
                             <!-- Sell/Buy Section -->
-                            <div class="feature-card p-4 rounded-3" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
+                            <!-- <div class="feature-card p-4 rounded-3" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
                                 <h3 class="h5 text-white mb-3">
                                     <i class="fas fa-exchange-alt me-2"></i>Sell / Buy
                                 </h3>
                                 <p class="text-white-50 mb-0">
                                     Trade encrypted memories using cryptocurrency. Set your price as a seller or acquire unique memories as a buyer.
                                 </p>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
