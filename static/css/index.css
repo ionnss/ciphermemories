@@ -9,14 +9,14 @@
 
 html,
 body {
-    height: 100vh;
+    min-height: 100vh;
     width: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
 }
 
 body {
+    background-attachment: fixed;
     background-image:
         /* Base escura */
         linear-gradient(115deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)),
@@ -149,6 +149,7 @@ body {
     height: 100%;
     z-index: -1;
     overflow: hidden;
+    pointer-events: none;
 }
 
 .orb {
@@ -359,4 +360,107 @@ body {
 .register-btn:hover {
     background: rgba(255, 255, 255, 1);
     color: #000;
+}
+
+.feature-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.feature-card i {
+    opacity: 0.8;
+}
+
+.feature-card:hover i {
+    opacity: 1;
+}
+
+/* Memory Counter Atomic Style */
+.memory-counter-container {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.counter-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    padding: 20px;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.electron-orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: orbit 8s linear infinite;
+}
+
+.orbit-1 {
+    width: 160px;
+    height: 160px;
+    animation-duration: 6s;
+}
+
+.orbit-2 {
+    width: 180px;
+    height: 180px;
+    animation-duration: 8s;
+    transform: translate(-50%, -50%) rotate(60deg);
+}
+
+.orbit-3 {
+    width: 200px;
+    height: 200px;
+    animation-duration: 10s;
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.electron {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    top: -5px;
+    left: calc(50% - 5px);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes orbit {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+#memoryCount {
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
