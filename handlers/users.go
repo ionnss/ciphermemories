@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -283,11 +284,173 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func ForgotPassword(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement forgot password
+	if r.Method == http.MethodGet {
+		http.ServeFile(w, r, "templates/forgot-password.html")
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	email := SanitizeInput(strings.ToLower(r.FormValue("email")))
+	if !ValidateEmail(email) {
+		http.Error(w, "Invalid email format", http.StatusBadRequest)
+		return
+	}
+
+	// Check if user exists
+	var userID int64
+	err := db.DB.QueryRow("SELECT id FROM users WHERE email = $1", email).Scan(&userID)
+	if err != nil {
+		// Don't reveal if email exists or not
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `<div class="alert alert-success">If your email is registered, you will receive a password reset link shortly.</div>`)
+		return
+	}
+
+	// Generate reset token
+	token, err := GenerateVerificationToken()
+	if err != nil {
+		http.Error(w, "Error generating reset token", http.StatusInternalServerError)
+		return
+	}
+
+	// Store token in database with expiration
+	expiresAt := time.Now().Add(15 * time.Minute)
+	_, err = db.DB.Exec(`
+		INSERT INTO password_reset_tokens (user_id, token, expires_at)
+		VALUES ($1, $2, $3)
+	`, userID, token, expiresAt)
+
+	if err != nil {
+		http.Error(w, "Error processing request", http.StatusInternalServerError)
+		return
+	}
+
+	// Send reset email
+	resetURL := fmt.Sprintf("https://ciphermemories.com/reset-password?token=%s", token)
+	emailData := &EmailData{
+		Title:      "Reset Your Password - Cipher Memories",
+		Message:    "Click the button below to reset your password. This link will expire in 15 minutes.",
+		ButtonText: "Reset Password",
+		ButtonURL:  resetURL,
+	}
+
+	if err := SendEmail(email, "Reset Your Password - Cipher Memories", emailData); err != nil {
+		fmt.Printf("Error sending reset email: %v\n", err)
+		http.Error(w, "Error sending reset email", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `<div class="alert alert-success">If your email is registered, you will receive a password reset link shortly.</div>`)
 }
 
 func ResetPassword(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement reset password
+	if r.Method == http.MethodGet {
+		token := r.URL.Query().Get("token")
+		if token == "" {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		// Check if token exists and is valid
+		var expiresAt time.Time
+		var used bool
+		err := db.DB.QueryRow(`
+			SELECT expires_at, used 
+			FROM password_reset_tokens 
+			WHERE token = $1
+		`, token).Scan(&expiresAt, &used)
+
+		if err != nil || time.Now().After(expiresAt) || used {
+			http.Redirect(w, r, "/?error=invalid_token", http.StatusSeeOther)
+			return
+		}
+
+		// Redirect to index with token and show modal
+		http.Redirect(w, r, fmt.Sprintf("/?reset_token=%s", token), http.StatusSeeOther)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	token := r.FormValue("token")
+	password := r.FormValue("password")
+
+	if !ValidatePassword(password) {
+		http.Error(w, "Password must be at least 8 characters long and contain uppercase, lowercase, number and special character", http.StatusBadRequest)
+		return
+	}
+
+	// Get user ID from token
+	var userID int64
+	var expiresAt time.Time
+	var used bool
+	err := db.DB.QueryRow(`
+		SELECT user_id, expires_at, used 
+		FROM password_reset_tokens 
+		WHERE token = $1
+	`, token).Scan(&userID, &expiresAt, &used)
+
+	if err != nil || time.Now().After(expiresAt) || used {
+		http.Error(w, "Invalid or expired reset token", http.StatusBadRequest)
+		return
+	}
+
+	// Start transaction
+	tx, err := db.DB.Begin()
+	if err != nil {
+		http.Error(w, "Error processing request", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	// Hash new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Error processing password", http.StatusInternalServerError)
+		return
+	}
+
+	// Update password
+	_, err = tx.Exec(`
+		UPDATE users 
+		SET hashed_password = $1, 
+		    updated_at = CURRENT_TIMESTAMP 
+		WHERE id = $2
+	`, string(hashedPassword), userID)
+
+	if err != nil {
+		http.Error(w, "Error updating password", http.StatusInternalServerError)
+		return
+	}
+
+	// Mark token as used
+	_, err = tx.Exec(`
+		UPDATE password_reset_tokens 
+		SET used = true 
+		WHERE token = $1
+	`, token)
+
+	if err != nil {
+		http.Error(w, "Error updating token", http.StatusInternalServerError)
+		return
+	}
+
+	// Commit transaction
+	if err = tx.Commit(); err != nil {
+		http.Error(w, "Error completing password reset", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `<div class="alert alert-success">Password reset successful! Please login with your new password. Redirecting...</div>`)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {

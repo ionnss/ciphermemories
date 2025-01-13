@@ -15,5 +15,16 @@ CREATE TABLE IF NOT EXISTS users (
     current_location VARCHAR(255)
 );
 
+-- Create password reset tokens table
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(token)
+); 
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_email ON users (email);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON users (username);

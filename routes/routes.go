@@ -24,6 +24,8 @@ func ConfigureRoutes(r *mux.Router) {
 	public.HandleFunc("/register", handlers.RegisterPage).Methods("GET")
 	public.HandleFunc("/terms", handlers.TermsPage).Methods("GET")
 	public.HandleFunc("/privacy", handlers.PrivacyPage).Methods("GET")
+	public.HandleFunc("/forgot-password", handlers.ForgotPassword).Methods("GET", "POST")
+	public.HandleFunc("/reset-password", handlers.ResetPassword).Methods("GET", "POST")
 
 	// Auth actions
 	public.HandleFunc("/register", handlers.RegisterUser).Methods("POST")

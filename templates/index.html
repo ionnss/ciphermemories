@@ -207,11 +207,68 @@
         </div>
     </div>
 
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-0">
+                <div class="modal-body text-center p-5">
+                    <div class="mb-4">
+                        <img src="/static/assets/logo.svg" 
+                             alt="Cipher Memories" 
+                             class="logo mb-3" 
+                             style="width: 80px;">
+                        <h4 class="brand-text">NEW PASSWORD</h4>
+                    </div>
+
+                    <!-- Mensagem de erro/sucesso -->
+                    <div id="resetMessage" class="alert d-none mb-3" role="alert"></div>
+
+                    <form id="resetPasswordForm"
+                        hx-post="/reset-password"
+                        hx-target="#resetMessage"
+                        hx-swap="innerHTML"
+                        hx-indicator="#resetSpinner"
+                        hx-disabled-elt="#resetButton"
+                        hx-on::after-request="if(event.detail.successful) {
+                            document.getElementById('resetMessage').classList.remove('d-none', 'alert-danger');
+                            document.getElementById('resetMessage').classList.add('alert-success');
+                            document.getElementById('resetMessage').innerHTML = 'Password reset successful! Redirecting to login...';
+                            setTimeout(() => window.location.href = '/login', 2000);
+                        } else {
+                            document.getElementById('resetMessage').classList.remove('d-none', 'alert-success');
+                            document.getElementById('resetMessage').classList.add('alert-danger');
+                        }">
+
+                        <input type="hidden" name="token" value="{{.Token}}">
+                        
+                        <div class="mb-3">
+                            <input type="password" name="password" class="form-control btn-light" placeholder="New Password" required>
+                            <small class="text-white-50">
+                                Must contain at least 8 characters, including uppercase, lowercase, number and special character
+                            </small>
+                        </div>
+                        <div class="mb-4">
+                            <input type="password" name="confirm_password" class="form-control btn-light" placeholder="Confirm New Password" required>
+                        </div>
+                        <button type="submit"
+                                id="resetButton"
+                                class="btn btn-outline-light w-100 mb-3">
+                            <span>Reset Password</span>
+                            <span id="resetSpinner" class="htmx-indicator">
+                                <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <script>
-        // Check URL parameters for verification status
+        // Check URL parameters for verification status and reset token
         const urlParams = new URLSearchParams(window.location.search);
         
         if (urlParams.get('verified') === 'true') {
@@ -239,7 +296,33 @@
             errorModal.show();
             // Clean URL
             window.history.replaceState({}, document.title, "/");
+        } else if (urlParams.get('reset_token')) {
+            // Show reset password modal and set token
+            const resetModal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
+            document.querySelector('input[name="token"]').value = urlParams.get('reset_token');
+            resetModal.show();
+            // Clean URL
+            window.history.replaceState({}, document.title, "/");
         }
+
+        // Password match validation for reset form
+        document.getElementById('resetPasswordForm')?.addEventListener('submit', function(evt) {
+            const password = this.querySelector('input[name="password"]').value;
+            const confirmPassword = this.querySelector('input[name="confirm_password"]').value;
+            
+            if (password !== confirmPassword) {
+                evt.preventDefault();
+                const messageDiv = document.getElementById('resetMessage');
+                messageDiv.classList.remove('d-none', 'alert-success');
+                messageDiv.classList.add('alert-danger');
+                messageDiv.textContent = 'Passwords do not match';
+                return;
+            }
+
+            // Clear previous messages
+            const messageDiv = document.getElementById('resetMessage');
+            messageDiv.classList.add('d-none');
+        });
     </script>
 </body>
 
