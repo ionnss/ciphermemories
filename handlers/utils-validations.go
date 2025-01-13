@@ -3,7 +3,6 @@ package handlers
 import (
 	"ciphermemories/db"
 	"ciphermemories/models"
-	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -16,8 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cloudinary/cloudinary-go/v2"
-	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 )
 
@@ -371,46 +369,46 @@ func isHTMXOnlyRoute(path string) bool {
 	return false
 }
 
-// UploadToCloudinary uploads a file to Cloudinary
-//
-// receives: file io.Reader
-//
-// returns: URL of the uploaded file, error
-func UploadToCloudinary(file io.Reader) (string, error) {
-	fmt.Printf("UploadToCloudinary: starting upload\n")
+// UserAvatarUpload handles user avatar uploads to local storage
+func UserAvatarUpload(file io.Reader, userID int64, oldAvatarURL string) (string, error) {
+	fmt.Printf("UserAvatarUpload: starting upload for user %d\n", userID)
 
-	// Pegar URL do Cloudinary do .env
-	cloudinaryURL := os.Getenv("CLOUDINARY_URL")
-	if cloudinaryURL == "" {
-		return "", fmt.Errorf("CLOUDINARY_URL environment variable is not set")
+	// Create uploads directory if it doesn't exist
+	uploadsDir := "static/uploads/avatars"
+	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create uploads directory: %v", err)
 	}
-	fmt.Printf("UploadToCloudinary: got Cloudinary URL\n")
 
-	// Criar cliente Cloudinary
-	cld, err := cloudinary.NewFromURL(cloudinaryURL)
+	// Delete old avatar if it exists and is not the default avatar
+	if oldAvatarURL != "" && !strings.Contains(oldAvatarURL, "default-avatar") {
+		oldPath := strings.TrimPrefix(oldAvatarURL, "/")
+		if err := os.Remove(oldPath); err != nil {
+			fmt.Printf("Warning: Failed to delete old avatar: %v\n", err)
+			// Continue with upload even if delete fails
+		}
+	}
+
+	// Generate unique filename using UUID
+	filename := fmt.Sprintf("%s.jpg", uuid.New().String())
+	filepath := fmt.Sprintf("%s/%s", uploadsDir, filename)
+
+	// Create new file
+	newFile, err := os.Create(filepath)
 	if err != nil {
-		fmt.Printf("UploadToCloudinary failed: error creating client: %v\n", err)
-		return "", err
+		return "", fmt.Errorf("failed to create file: %v", err)
 	}
-	fmt.Printf("UploadToCloudinary: client created successfully\n")
+	defer newFile.Close()
 
-	// Fazer upload
-	fmt.Printf("UploadToCloudinary: attempting upload to profiles folder\n")
-	uploadResult, err := cld.Upload.Upload(
-		context.Background(),
-		file,
-		uploader.UploadParams{
-			Folder: "profiles",
-		},
-	)
-
-	if err != nil {
-		fmt.Printf("UploadToCloudinary failed: error uploading: %v\n", err)
-		return "", err
+	// Copy uploaded file to new file
+	if _, err := io.Copy(newFile, file); err != nil {
+		return "", fmt.Errorf("failed to save file: %v", err)
 	}
-	fmt.Printf("UploadToCloudinary: upload successful - URL: %s\n", uploadResult.SecureURL)
 
-	return uploadResult.SecureURL, nil
+	// Return the URL path that will be stored in the database
+	avatarURL := fmt.Sprintf("/%s/%s", uploadsDir, filename)
+	fmt.Printf("UserAvatarUpload: upload successful - Path: %s\n", avatarURL)
+
+	return avatarURL, nil
 }
 
 // GenerateRandomKey generates a random key
