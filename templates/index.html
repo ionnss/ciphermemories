@@ -137,13 +137,33 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-auto">
-                    <!-- <a href="/terms" class="text-white-50 text-decoration-none small" hx-get="/terms" hx-target="body"
-                        hx-push-url="true" hx-swap="innerHTML">
-                        Terms of Use
-                        <span class="htmx-indicator ms-1">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </span>
-                    </a> -->
+                    <div class="footer-links px-4 py-2" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(8px); border-radius: 2rem;">
+                        <div class="d-flex gap-4 align-items-center">
+                            <a href="/terms" class="text-white-50 text-decoration-none small d-flex align-items-center transition-all" 
+                               style="transition: all 0.3s ease;"
+                               onmouseover="this.style.color='rgba(255, 255, 255, 0.9)'" 
+                               onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'"
+                               hx-get="/terms" 
+                               hx-target="body"
+                               hx-push-url="true" 
+                               hx-swap="innerHTML">
+                                <i class="fas fa-file-alt me-2"></i>
+                                Terms of Use
+                                <span class="htmx-indicator ms-1">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </span>
+                            </a>
+                            <div style="width: 1px; height: 1rem; background: rgba(255, 255, 255, 0.1);"></div>
+                            <a href="mailto:contact@ciphermemories.com" 
+                               class="text-white-50 text-decoration-none small d-flex align-items-center"
+                               style="transition: all 0.3s ease;"
+                               onmouseover="this.style.color='rgba(255, 255, 255, 0.9)'" 
+                               onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'">
+                                <i class="fas fa-envelope me-2"></i>
+                                Contact
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
