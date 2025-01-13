@@ -67,30 +67,15 @@
                 <div class="text-center mb-4">
                     <h1 class="display-4 text-white brand-text mt-4 mb-4">CIPHER MEMORIES</h1>
                     <h2 class="h4 text-white-50">Human Memories Repository</h2>
+                    <p class="lead text-white-50 mt-4 mb-0" style="font-size: 1rem; letter-spacing: 1px;">Some memories are meant to be encrypted forever</p>
                 </div>
                 
                 <!-- Counter Box -->
-                <div class="row justify-content-center mb-5">
-                    <div class="col-lg-4 col-md-8 col-10">
-                        <div class="memory-box-container mx-auto">
-                            <div class="memory-box">
-                                <!-- Free Electrons -->
-                                <div class="memory-electron"></div>
-                                <div class="memory-electron"></div>
-                                <div class="memory-electron"></div>
-                                <div class="memory-electron"></div>
-                                <div class="memory-electron"></div>
-                                <div class="memory-electron"></div>
-                                <!-- Counter -->
-                                <div class="counter-content">
-                                    <span id="memoryCount" class="brand-text"
-                                          hx-get="/total-ciphered-memories" 
-                                          hx-trigger="load, every 30s">●●●●●</span>
-                                    <small>memories ciphered</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="counter-content mt-4 mb-5">
+                    <span id="memoryCount" class="brand-text"
+                          hx-get="/total-ciphered-memories" 
+                          hx-trigger="load, every 30s">●●●●●</span>
+                    <small>memories ciphered</small>
                 </div>
 
                 <!-- Mysterious Tagline -->
@@ -99,7 +84,7 @@
                 </p> -->
 
                 <!-- Features Section -->
-                <div class="row justify-content-center mb-5">
+                <div class="row justify-content-center mt-2 mb-5">
                     <div class="col-md-10">
                         <div class="d-flex flex-column gap-4">
                             <!-- Cipher Section -->
