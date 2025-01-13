@@ -37,7 +37,7 @@
                  class="profile-img">
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="/profile/{{.ViewingUser.Username}}">Profile</a></li>
+            <li><span class="dropdown-item">{{.ViewingUser.Username}}</span></li>
             <li><hr class="dropdown-divider"></li>
             <li>
                 <form action="/logout" method="POST">
