@@ -233,7 +233,9 @@
                             document.getElementById('resetMessage').classList.remove('d-none', 'alert-danger');
                             document.getElementById('resetMessage').classList.add('alert-success');
                             document.getElementById('resetMessage').innerHTML = 'Password reset successful! Redirecting to login...';
-                            setTimeout(() => window.location.href = '/login', 2000);
+                            setTimeout(() => {
+                                htmx.ajax('GET', '/login', {target:'body', swap:'innerHTML', pushUrl:true});
+                            }, 2000);
                         } else {
                             document.getElementById('resetMessage').classList.remove('d-none', 'alert-success');
                             document.getElementById('resetMessage').classList.add('alert-danger');
