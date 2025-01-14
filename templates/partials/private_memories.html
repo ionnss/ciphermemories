@@ -1,4 +1,10 @@
 {{define "private_memories"}}
+<div class="memory-orbs">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+</div>
+
 <div class="private-memories">
     {{if not .}}
         <div class="no-memories">
@@ -22,28 +28,46 @@
 </div>
 
 <style>
+    /* Import Montserrat font */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
     .private-memories {
         max-width: 800px;
         margin: 0 auto;
+        font-family: 'Montserrat', sans-serif;
+        position: relative;
+        z-index: 1;
     }
 
     .no-memories {
         text-align: center;
         padding: 4rem 2rem;
-        color: #666;
+        color: #9b9a9a;
+    }
+
+    .no-memories i {
+        color: #4a2b8a;
+        margin-bottom: 1rem;
+    }
+
+    .no-memories h3 {
+        color: #ffffff;
+        margin-bottom: 0.5rem;
     }
 
     .memory-card {
-        background: rgba(26, 26, 26, 0.95);
-        border: 1px solid #4a2b8a;
-        border-radius: 8px;
+        background: rgba(38, 37, 37, 0.9);
+        border: 1px solid rgba(74, 43, 138, 0.2);
+        border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
         transition: transform 0.2s ease;
+        backdrop-filter: blur(10px);
     }
 
     .memory-card:hover {
         transform: translateY(-2px);
+        border-color: #4a2b8a;
     }
 
     .memory-header {
@@ -59,17 +83,73 @@
         margin: 0;
         color: #ffffff;
         font-size: 1.25rem;
+        font-weight: 600;
     }
 
     .memory-date {
-        color: #888;
+        color: #9b9a9a;
         font-size: 0.875rem;
     }
 
     .memory-content {
-        color: #e6e6e6;
+        color: #9b9a9a;
         line-height: 1.6;
         white-space: pre-wrap;
+        font-size: 0.95rem;
+    }
+
+    .memory-orbs {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -1;
+    }
+
+    .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.2;
+        animation: float 20s infinite ease-in-out;
+    }
+
+    .orb:nth-child(1) {
+        background: #8B0000;  /* Dark red */
+        width: 400px;
+        height: 400px;
+        top: -100px;
+        left: 20%;
+        animation-delay: -2s;
+    }
+
+    .orb:nth-child(2) {
+        background: #DC143C;  /* Crimson */
+        width: 300px;
+        height: 300px;
+        top: 50%;
+        right: 10%;
+        animation-delay: -5s;
+    }
+
+    .orb:nth-child(3) {
+        background: #800020;  /* Burgundy */
+        width: 350px;
+        height: 350px;
+        bottom: -100px;
+        left: 30%;
+        animation-delay: -7s;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0) scale(1);
+        }
+        50% {
+            transform: translateY(-40px) scale(1.05);
+        }
     }
 </style>
 {{end}} 
