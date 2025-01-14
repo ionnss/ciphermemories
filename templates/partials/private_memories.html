@@ -1,0 +1,75 @@
+{{define "private_memories"}}
+<div class="private-memories">
+    {{if not .}}
+        <div class="no-memories">
+            <i class="fas fa-lock fa-3x mb-3"></i>
+            <h3>No Private Memories Found</h3>
+            <p>Your private memories will appear here once you create them.</p>
+        </div>
+    {{else}}
+        {{range .}}
+        <div class="memory-card">
+            <div class="memory-header">
+                <h3 class="memory-title">{{.Title}}</h3>
+                <span class="memory-date">{{.CreatedAt.Format "Jan 02, 2006"}}</span>
+            </div>
+            <div class="memory-content">
+                {{.Content}}
+            </div>
+        </div>
+        {{end}}
+    {{end}}
+</div>
+
+<style>
+    .private-memories {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .no-memories {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #666;
+    }
+
+    .memory-card {
+        background: rgba(26, 26, 26, 0.95);
+        border: 1px solid #4a2b8a;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s ease;
+    }
+
+    .memory-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .memory-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(74, 43, 138, 0.3);
+    }
+
+    .memory-title {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1.25rem;
+    }
+
+    .memory-date {
+        color: #888;
+        font-size: 0.875rem;
+    }
+
+    .memory-content {
+        color: #e6e6e6;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+</style>
+{{end}} 

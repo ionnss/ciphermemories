@@ -125,3 +125,21 @@ func SettingsPage(w http.ResponseWriter, r *http.Request) {
 	}
 	http.ServeFile(w, r, "templates/settings.html")
 }
+
+// MemoriesManagerPage serves the memories manager page/partial
+func MemoriesManagerPage(w http.ResponseWriter, r *http.Request) {
+	if !ValidateSession(w, r) {
+		http.Redirect(w, r, "/dashboard", http.StatusFound)
+		return
+	}
+	http.ServeFile(w, r, "templates/memories_manager.html")
+}
+
+// MemoriesManagerSetupPage serves the memories manager setup page/partial
+func MemoriesManagerSetupPage(w http.ResponseWriter, r *http.Request) {
+	if !ValidateSession(w, r) {
+		http.Redirect(w, r, "/dashboard", http.StatusFound)
+		return
+	}
+	http.ServeFile(w, r, "templates/memories_manager_setup.html")
+}

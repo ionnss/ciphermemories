@@ -48,4 +48,10 @@ func ConfigureRoutes(r *mux.Router) {
 	// Protected pages
 	protected.HandleFunc("/settings", handlers.RenderSettings).Methods("GET")
 	protected.HandleFunc("/settings/avatar", handlers.HandleAvatarUpload).Methods("POST")
+
+	// Memories Manager routes
+	protected.HandleFunc("/memories-manager", handlers.PrivateMemoriesManager).Methods("GET", "POST")
+	protected.HandleFunc("/memories-manager/setup", handlers.SetupMemoriesManager).Methods("POST")
+	protected.HandleFunc("/memories-manager/validate", handlers.ValidateMemoriesManagerPassword).Methods("POST")
+	protected.HandleFunc("/memories-manager/private", handlers.GetPrivateMemories).Methods("GET")
 }

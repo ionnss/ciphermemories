@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // IndexMemoriesCount retorna o total de memórias criptografadas
@@ -375,4 +377,266 @@ func CheckNewMemories(w http.ResponseWriter, r *http.Request) {
 	// Retorna o resultado como JSON
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, `{"count": %d}`, count)
+}
+
+func PrivateMemoriesManager(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return
+	}
+
+	// Check if this is a setup request
+	if r.Method == "POST" {
+		SetupMemoriesManager(w, r)
+		return
+	}
+
+	// Check if user has memories manager
+	var hasManager bool
+	err := db.DB.QueryRow(`
+		SELECT has_memories_manager 
+		FROM users 
+		WHERE id = $1
+	`, user.ID).Scan(&hasManager)
+
+	if err != nil {
+		http.Error(w, "Error checking memories manager status", http.StatusInternalServerError)
+		return
+	}
+
+	// If user doesn't have memories manager, show setup page
+	if !hasManager {
+		err = pageTemplates.ExecuteTemplate(w, "memories_manager_setup.html", nil)
+		if err != nil {
+			http.Error(w, "Error rendering setup page", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// If user has memories manager, show the manager page
+	err = pageTemplates.ExecuteTemplate(w, "memories_manager.html", nil)
+	if err != nil {
+		http.Error(w, "Error rendering manager page", http.StatusInternalServerError)
+	}
+}
+
+// Helper function to handle the setup process
+func SetupMemoriesManager(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return
+	}
+
+	// Get password from user input
+	password := r.FormValue("password")
+
+	// Validate password
+	if !ValidatePassword(password) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `<div class="alert alert-danger">Invalid password format</div>`)
+		return
+	}
+
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `<div class="alert alert-danger">Error processing password</div>`)
+		return
+	}
+
+	// Update user with hashed password and enable memories manager
+	_, err = db.DB.Exec(`
+		UPDATE users 
+		SET memories_password_hash = $1, has_memories_manager = true 
+		WHERE id = $2
+	`, hashedPassword, user.ID)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `<div class="alert alert-danger">Error saving password</div>`)
+		return
+	}
+
+	// Send confirmation email
+	emailData := &EmailDataMemoriesManager{
+		Title:        "Memory Manager Activated",
+		Message:      fmt.Sprintf("Your password for the Memory Manager has been set, %s. You can now manage your private memories.", user.Username),
+		AttentionBox: "Keep this password safe! It cannot be recovered if lost.",
+		Password:     password,
+	}
+
+	err = MemoryManagerSendEmail(user.Email, "Memory Manager Activated", emailData)
+	if err != nil {
+		fmt.Printf("[ERROR] Error sending email: %v\n", err)
+		w.WriteHeader(http.StatusOK) // Still return OK since the setup was successful
+		fmt.Fprintf(w, `<div class="alert alert-warning">Memory Manager activated successfully, but there was an error sending the confirmation email. Please keep your password safe!</div>`)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `<div class="alert alert-success">Memory Manager activated successfully! Redirecting...</div>`)
+}
+
+func ValidateMemoriesManagerPassword(w http.ResponseWriter, r *http.Request) {
+	// Get user from session
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return
+	}
+
+	// Get password from request
+	password := r.FormValue("password")
+	if password == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `<div class="alert alert-danger">Password is required</div>`)
+		return
+	}
+
+	// Get stored password hash
+	var storedHash string
+	err := db.DB.QueryRow(`
+		SELECT memories_password_hash 
+		FROM users 
+		WHERE id = $1
+	`, user.ID).Scan(&storedHash)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `<div class="alert alert-danger">Error validating password</div>`)
+		return
+	}
+
+	// Compare passwords
+	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(password))
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprintf(w, `<div class="alert alert-danger">Invalid password</div>`)
+		return
+	}
+
+	// Create a temporary session token for memories access
+	session, _ := Store.Get(r, "session-ciphermemories")
+	session.Values["memories_access"] = true
+	session.Values["memories_access_time"] = time.Now().Unix()
+
+	err = session.Save(r, w)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `<div class="alert alert-danger">Error creating session</div>`)
+		return
+	}
+
+	// Return success
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `<div class="alert alert-success">Access granted</div>`)
+}
+
+func GetPrivateMemories(w http.ResponseWriter, r *http.Request) {
+	// Get user from session
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return
+	}
+
+	// Verify memories access
+	session, _ := Store.Get(r, "session-ciphermemories")
+	memoryAccess, ok := session.Values["memories_access"].(bool)
+	if !ok || !memoryAccess {
+		http.Error(w, "Unauthorized access", http.StatusUnauthorized)
+		return
+	}
+
+	// Check if access hasn't expired (30 minutes)
+	accessTime, ok := session.Values["memories_access_time"].(int64)
+	if !ok || time.Now().Unix()-accessTime > 1800 { // 30 minutes
+		delete(session.Values, "memories_access")
+		delete(session.Values, "memories_access_time")
+		session.Save(r, w)
+		http.Error(w, "Access expired", http.StatusUnauthorized)
+		return
+	}
+
+	// Get user's private memories
+	query := `
+		SELECT m.id, m.title, m.hashed_content, m.hashed_key, m.encryption_iv, 
+			   m.encryption_tag, m.created_at
+		FROM memories m
+		WHERE m.creator_id = $1 AND m.status = 'private'
+		ORDER BY m.created_at DESC
+	`
+
+	rows, err := db.DB.Query(query, user.ID)
+	if err != nil {
+		http.Error(w, "Error fetching memories", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var memories []struct {
+		ID        int64     `json:"id"`
+		Title     string    `json:"title"`
+		Content   string    `json:"content"`
+		CreatedAt time.Time `json:"created_at"`
+	}
+
+	for rows.Next() {
+		var m struct {
+			ID            int64
+			Title         string
+			HashedContent string
+			HashedKey     string
+			EncryptionIV  string
+			EncryptionTag string
+			CreatedAt     time.Time
+		}
+
+		err := rows.Scan(
+			&m.ID, &m.Title, &m.HashedContent, &m.HashedKey,
+			&m.EncryptionIV, &m.EncryptionTag, &m.CreatedAt,
+		)
+		if err != nil {
+			continue
+		}
+
+		// Decrypt memory content
+		iv, _ := base64.StdEncoding.DecodeString(m.EncryptionIV)
+		key, _ := DecryptKey(m.HashedKey)
+		tag, _ := base64.StdEncoding.DecodeString(m.EncryptionTag)
+		encryptedData, _ := base64.StdEncoding.DecodeString(m.HashedContent)
+
+		fullData := append(encryptedData, tag...)
+		content, err := DecryptContent(
+			base64.StdEncoding.EncodeToString(fullData),
+			key,
+			iv,
+			m.EncryptionTag,
+		)
+		if err != nil {
+			continue
+		}
+
+		memories = append(memories, struct {
+			ID        int64     `json:"id"`
+			Title     string    `json:"title"`
+			Content   string    `json:"content"`
+			CreatedAt time.Time `json:"created_at"`
+		}{
+			ID:        m.ID,
+			Title:     m.Title,
+			Content:   content,
+			CreatedAt: m.CreatedAt,
+		})
+	}
+
+	// Render memories template
+	err = pageTemplates.ExecuteTemplate(w, "private_memories", memories)
+	if err != nil {
+		http.Error(w, "Error rendering memories", http.StatusInternalServerError)
+		return
+	}
 }

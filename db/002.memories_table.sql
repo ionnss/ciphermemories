@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS memories (
     FOREIGN KEY (creator_id) REFERENCES users(id)
 );
 
+
+
 CREATE TABLE IF NOT EXISTS memories_access (
     id SERIAL PRIMARY KEY,
     memory_id INT REFERENCES memories(id),

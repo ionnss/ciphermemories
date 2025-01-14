@@ -543,3 +543,30 @@ func GetUserFromSession(r *http.Request) *models.User {
 
 	return &user
 }
+
+// HasMemoriesManager checks if the user has memories manager
+//
+// receives: w http.ResponseWriter, r *http.Request
+//
+// returns: true if the user has memories manager, false otherwise
+func HasMemoriesManager(w http.ResponseWriter, r *http.Request) bool {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		fmt.Printf("[ERROR] User not found\n")
+		fmt.Fprintf(w, "User not found")
+		return false
+	}
+
+	var hasManager bool
+	err := db.DB.QueryRow(`
+		SELECT has_memories_manager FROM users WHERE id = $1
+	`, user.ID).Scan(&hasManager)
+	if err != nil {
+		http.Error(w, "Failed to check if user has memories manager", http.StatusInternalServerError)
+		fmt.Printf("[ERROR] Failed to check if user has memories manager: %v\n", err)
+		fmt.Fprintf(w, "failed to check if user has memories manager")
+		return false
+	}
+	return hasManager
+}

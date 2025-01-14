@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+        }
+        .content {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .attention-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .password-box {
+            background: rgba(74, 43, 138, 0.1);
+            border: 1px solid #4a2b8a;
+            color: #4a2b8a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 18px;
+        }
+        .gold-logo {
+            width: 80px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <img src="cid:gold-logo" alt="Gold Logo" class="gold-logo">
+            <h2>{{.Title}}</h2>
+        </div>
+        <div class="content">
+            <p>{{.Message}}</p>
+            
+            {{if .AttentionBox}}
+            <div class="attention-box">
+                ⚠️ {{.AttentionBox}} ⚠️
+            </div>
+            {{end}}
+            
+            {{if .Password}}
+            <div class="password-box">
+                <strong>Your Password:</strong><br>
+                {{.Password}}
+            </div>
+            {{end}}
+        </div>
+    </div>
+</body>
+</html>

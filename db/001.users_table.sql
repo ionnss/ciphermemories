@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
     birth_location VARCHAR(255),
     birthdate DATE,
     current_location VARCHAR(255)
+    --memories_password_hash VARCHAR(255),
+    --has_memories_manager BOOLEAN DEFAULT FALSE
 );
 
 -- Create password reset tokens table
