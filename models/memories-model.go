@@ -18,6 +18,14 @@ type Memory struct {
 	HasMemoriesManager bool      `json:"has_memories_manager" db:"has_memories_manager"`
 }
 
+type PrivateMemory struct {
+	ID        int64     `json:"id" db:"id"`
+	Title     string    `json:"title" db:"title"`
+	Content   string    `json:"content" db:"content"`
+	Status    string    `json:"status" db:"status"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+}
+
 // MemoriesAccess is a struct that represents a memory access
 type MemoriesAccess struct {
 	ID            int64     `json:"id" db:"id"`
