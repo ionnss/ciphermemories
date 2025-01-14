@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
     bio VARCHAR(160),
     birth_location VARCHAR(255),
     birthdate DATE,
-    current_location VARCHAR(255)
-    --memories_password_hash VARCHAR(255),
-    --has_memories_manager BOOLEAN DEFAULT FALSE
+    current_location VARCHAR(255),
+    memories_password_hash VARCHAR(255),
+    has_memories_manager BOOLEAN DEFAULT FALSE
 );
 
 -- Create password reset tokens table
@@ -30,3 +30,4 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_email ON users (email);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON users (username);
+CREATE INDEX IF NOT EXISTS idx_has_memories_manager ON users(has_memories_manager); 

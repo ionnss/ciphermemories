@@ -2,69 +2,203 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if mso]>
+    <style type="text/css">
+    .button {
+        background: #4a2b8a !important;
+        border-radius: 5px !important;
+        color: #ffffff !important;
+        display: inline-block !important;
+        font-family: Arial, sans-serif !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        line-height: 40px !important;
+        text-align: center !important;
+        text-decoration: none !important;
+        width: 200px !important;
+        -webkit-text-size-adjust: none !important;
+    }
+    </style>
+    <![endif]-->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+        
+        /* Web-safe fonts and improved email client compatibility */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background-color: #f4f4f4;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
         .email-container {
             max-width: 600px;
-            margin: 0 auto;
-            font-family: Arial, sans-serif;
-            color: #333;
+            margin: 20px auto;
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
         }
+        
         .header {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
+            background: #2d1a4a;
         }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .brand-name {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0;
+            font-family: Arial Black, Arial Bold, Gadget, sans-serif;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+            transition: filter 0.3s ease;
+        }
+        
         .content {
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 8px;
+            padding: 40px;
+            color: #ffffff;
+            text-align: center;
+            background: #1a1a1a;
         }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+        
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #e6e6e6;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999999;
+            font-size: 12px;
+            background: #0d0d0d;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            color: #999999;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        /* Memory Manager Specific Styles */
         .attention-box {
             background: rgba(255, 193, 7, 0.1);
-            border: 1px solid #ffc107;
-            color: #856404;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .password-box {
-            background: rgba(74, 43, 138, 0.1);
-            border: 1px solid #4a2b8a;
-            color: #4a2b8a;
+            border: 2px solid #ffc107;
+            border-radius: 5px;
             padding: 20px;
             margin: 20px 0;
-            border-radius: 4px;
+            color: #ffc107;
+            font-weight: bold;
             text-align: center;
-            font-family: monospace;
-            font-size: 18px;
         }
-        .gold-logo {
-            width: 80px;
-            height: auto;
-            margin-bottom: 20px;
+
+        .attention-box p {
+            margin: 0;
+        }
+
+        .password-box {
+            background: rgba(74, 43, 138, 0.1);
+            border: 2px solid #4a2b8a;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .password-gold-logo {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 15px;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+        }
+
+        .password-display {
+            color: #4a2b8a;
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            letter-spacing: 3px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 5px;
+            display: inline-block;
+            min-width: 200px;
+            box-shadow: 0 2px 10px rgba(74, 43, 138, 0.2);
         }
     </style>
 </head>
 <body>
     <div class="email-container">
         <div class="header">
-            <img src="cid:gold-logo" alt="Gold Logo" class="gold-logo">
-            <h2>{{.Title}}</h2>
+            <img src="https://ciphermemories.com/static/assets/gold-logo.png" 
+                 alt="Cipher Memories Gold" 
+                 class="logo"
+                 style="width: 80px; height: 80px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+            <h1 class="brand-name">CIPHER MEMORIES</h1>
         </div>
+        
         <div class="content">
-            <p>{{.Message}}</p>
+            <h2 class="title">{{.Title}}</h2>
+            <p class="message">{{.Message}}</p>
             
             {{if .AttentionBox}}
             <div class="attention-box">
-                ⚠️ {{.AttentionBox}} ⚠️
+                <p>⚠️ {{.AttentionBox}} ⚠️</p>
             </div>
             {{end}}
             
             {{if .Password}}
             <div class="password-box">
-                <strong>Your Password:</strong><br>
-                {{.Password}}
+                <img src="https://ciphermemories.com/static/assets/gold-logo.png" 
+                     alt="Cipher Memories Gold" 
+                     class="password-gold-logo">
+                <p class="password-display">{{.Password}}</p>
             </div>
             {{end}}
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Cipher Memories. All rights reserved.</p>
+            <p>Some memories are meant to be encrypted forever</p>
+            
+            <div class="social-links">
+                <a href="https://ciphermemories.com/terms">Terms of Use</a>
+                <a href="https://ciphermemories.com/privacy">Privacy Policy</a>
+            </div>
         </div>
     </div>
 </body>
