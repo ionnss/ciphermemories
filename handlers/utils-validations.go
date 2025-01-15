@@ -47,7 +47,7 @@ func init() {
 		Domain:   cookieDomain,
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   !strings.Contains(os.Getenv("HOST"), "localhost") && !strings.Contains(os.Getenv("HOST"), "127.0.0.1"),
 		SameSite: http.SameSiteLaxMode,
 	}
 
@@ -81,11 +81,17 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userID int64, usernam
 	session.Values["created_at"] = time.Now().Unix()
 	session.Values["last_activity"] = time.Now().Unix()
 
+	fmt.Printf("[DEBUG] Creating session for user %d (%s)\n", userID, username)
+	fmt.Printf("[DEBUG] Session values set: %+v\n", session.Values)
+
 	// Set cookie options
 	isLocalhost := strings.Contains(r.Host, "localhost") || strings.Contains(r.Host, "127.0.0.1")
 	cookieDomain := os.Getenv("COOKIE_DOMAIN")
 	if isLocalhost {
 		cookieDomain = ""
+		fmt.Printf("[DEBUG] Local environment detected, setting empty cookie domain\n")
+	} else {
+		fmt.Printf("[DEBUG] Production environment, using cookie domain: %s\n", cookieDomain)
 	}
 
 	session.Options = &sessions.Options{
@@ -93,17 +99,19 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userID int64, usernam
 		Domain:   cookieDomain,
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   !isLocalhost,
 		SameSite: http.SameSiteLaxMode,
 	}
 
+	fmt.Printf("[DEBUG] Session options set: %+v\n", session.Options)
+
 	err := session.Save(r, w)
 	if err != nil {
-		fmt.Printf("[ERROR] Failed to create session\n")
+		fmt.Printf("[ERROR] Failed to create session: %v\n", err)
 		return err
 	}
 
-	fmt.Printf("[INFO] Session created successfully\n")
+	fmt.Printf("[DEBUG] Session created and saved successfully\n")
 	return nil
 }
 
@@ -124,23 +132,30 @@ func LogSessionIssue(r *http.Request, issue string) {
 func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 	session, err := Store.Get(r, "session-ciphermemories")
 	if err != nil {
-		fmt.Printf("[ERROR] Session validation failed\n")
+		fmt.Printf("[DEBUG] Session validation failed: %v\n", err)
 		return false
 	}
+
+	fmt.Printf("[DEBUG] Session values: %+v\n", session.Values)
+	fmt.Printf("[DEBUG] Request Host: %s\n", r.Host)
+	fmt.Printf("[DEBUG] Cookie Domain: %s\n", session.Options.Domain)
+	fmt.Printf("[DEBUG] Secure flag: %v\n", session.Options.Secure)
 
 	sessionVersion, ok := session.Values["version"].(string)
 	envVersion := os.Getenv("APP_VERSION")
 
 	if !ok || sessionVersion != envVersion {
-		fmt.Printf("[INFO] Session version check failed\n")
+		fmt.Printf("[DEBUG] Session version mismatch - Session: %s, Env: %s\n", sessionVersion, envVersion)
 		ClearSession(w, r)
 		return false
 	}
 
 	// Check session age
 	if created, ok := session.Values["created_at"].(int64); ok {
-		if time.Now().Unix()-created > 7*24*60*60 {
-			fmt.Printf("[INFO] Session expired (age)\n")
+		age := time.Now().Unix() - created
+		fmt.Printf("[DEBUG] Session age: %d seconds (max: %d)\n", age, 7*24*60*60)
+		if age > 7*24*60*60 {
+			fmt.Printf("[DEBUG] Session expired due to age\n")
 			ClearSession(w, r)
 			return false
 		}
@@ -148,13 +163,16 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 
 	// Check last activity
 	if lastActivity, ok := session.Values["last_activity"].(int64); ok {
-		if time.Now().Unix()-lastActivity > 3600 {
-			fmt.Printf("[INFO] Session expired (inactivity)\n")
+		inactiveTime := time.Now().Unix() - lastActivity
+		fmt.Printf("[DEBUG] Time since last activity: %d seconds (max: %d)\n", inactiveTime, 3600)
+		if inactiveTime > 3600 {
+			fmt.Printf("[DEBUG] Session expired due to inactivity\n")
 			ClearSession(w, r)
 			return false
 		}
 	}
 
+	fmt.Printf("[DEBUG] Session validation successful\n")
 	return true
 }
 
@@ -183,10 +201,16 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 // returns: http.Handler
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("[DEBUG] AuthMiddleware - Request path: %s\n", r.URL.Path)
+		fmt.Printf("[DEBUG] AuthMiddleware - Headers: %+v\n", r.Header)
+
 		if !ValidateSession(w, r) {
+			fmt.Printf("[DEBUG] AuthMiddleware - Invalid session\n")
 			if r.Header.Get("HX-Request") == "true" {
+				fmt.Printf("[DEBUG] HTMX request - returning 401\n")
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			} else {
+				fmt.Printf("[DEBUG] Regular request - redirecting to login\n")
 				w.Header().Set("Cache-Control", "no-store, must-revalidate")
 				w.Header().Set("Pragma", "no-cache")
 				w.Header().Set("Expires", "0")
@@ -196,7 +220,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		session, _ := Store.Get(r, "session-ciphermemories")
+		fmt.Printf("[DEBUG] AuthMiddleware - Session retrieved: %+v\n", session.Values)
+
 		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+			fmt.Printf("[DEBUG] AuthMiddleware - Not authenticated\n")
 			if r.Header.Get("HX-Request") == "true" {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			} else {
@@ -208,9 +235,13 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Atualiza o último acesso
+		// Update last activity
 		session.Values["last_activity"] = time.Now().Unix()
-		session.Save(r, w)
+		if err := session.Save(r, w); err != nil {
+			fmt.Printf("[ERROR] Failed to update last activity: %v\n", err)
+		} else {
+			fmt.Printf("[DEBUG] Last activity updated successfully\n")
+		}
 
 		next.ServeHTTP(w, r)
 	})

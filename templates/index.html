@@ -67,14 +67,14 @@
                 <div class="text-center mb-4">
                     <h1 class="display-4 text-white brand-text mt-4 mb-4">CIPHER MEMORIES</h1>
                     <h2 class="h4 text-white-50">Human Memories Repository</h2>
-                    <p class="lead text-white-50 mt-4 mb-0 fst-italic" style="font-size: 1rem; letter-spacing: 1px;">Some memories are meant to be encrypted forever</p>
+                    <p class="lead text-white-50 mt-4 mb-0 fst-italic" style="font-size: 1rem; letter-spacing: 1px;">
+                        Some memories are meant to be encrypted forever</p>
                 </div>
-                
+
                 <!-- Counter Box -->
                 <div class="counter-content mt-4 mb-5">
-                    <span id="memoryCount" class="brand-text"
-                          hx-get="/total-ciphered-memories" 
-                          hx-trigger="load, every 30s">●●●●●</span>
+                    <span id="memoryCount" class="brand-text" hx-get="/total-ciphered-memories"
+                        hx-trigger="load, every 30s">●●●●●</span>
                     <small>memories ciphered</small>
                 </div>
 
@@ -88,22 +88,26 @@
                     <div class="col-md-10">
                         <div class="d-flex flex-column gap-4">
                             <!-- Cipher Section -->
-                            <div class="feature-card p-4 rounded-3" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
+                            <div class="feature-card p-4 rounded-3"
+                                style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
                                 <h3 class="h5 text-white mb-3">
                                     <i class="fas fa-lock me-2"></i>Cipher
                                 </h3>
                                 <p class="text-white-50 mb-0">
-                                    Create private encrypted memories that appear in the universal feed with visible titles but locked content.
+                                    Create private encrypted memories that appear in the universal feed with visible
+                                    titles but locked content.
                                 </p>
                             </div>
 
                             <!-- Share Section -->
-                            <div class="feature-card p-4 rounded-3" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
+                            <div class="feature-card p-4 rounded-3"
+                                style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
                                 <h3 class="h5 text-white mb-3">
                                     <i class="fas fa-share-alt me-2"></i>Share
                                 </h3>
                                 <p class="text-white-50 mb-0">
-                                    Share open memories with the community, displaying both title and content in the universal feed.
+                                    Share open memories with the community, displaying both title and content in the
+                                    universal feed.
                                 </p>
                             </div>
                             <!-- Sell/Buy Section -->
@@ -137,28 +141,28 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-auto">
-                    <div class="footer-links px-4 py-2" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(8px); border-radius: 2rem;">
+                    <div class="footer-links px-4 py-2"
+                        style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(8px); border-radius: 2rem;">
                         <div class="d-flex gap-4 align-items-center">
-                            <a href="/terms" class="text-white-50 text-decoration-none small d-flex align-items-center transition-all" 
-                               style="transition: all 0.3s ease;"
-                               onmouseover="this.style.color='rgba(255, 255, 255, 0.9)'" 
-                               onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'"
-                               hx-get="/terms" 
-                               hx-target="body"
-                               hx-push-url="true" 
-                               hx-swap="innerHTML">
+                            <a href="/terms"
+                                class="text-white-50 text-decoration-none small d-flex align-items-center transition-all"
+                                style="transition: all 0.3s ease;"
+                                onmouseover="this.style.color='rgba(255, 255, 255, 0.9)'"
+                                onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'" hx-get="/terms"
+                                hx-target="body" hx-push-url="true" hx-swap="innerHTML">
                                 <i class="fas fa-file-alt me-2"></i>
                                 Terms of Use
                                 <span class="htmx-indicator ms-1">
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
                                 </span>
                             </a>
                             <div style="width: 1px; height: 1rem; background: rgba(255, 255, 255, 0.1);"></div>
-                            <a href="mailto:contact@ciphermemories.com" 
-                               class="text-white-50 text-decoration-none small d-flex align-items-center"
-                               style="transition: all 0.3s ease;"
-                               onmouseover="this.style.color='rgba(255, 255, 255, 0.9)'" 
-                               onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'">
+                            <a href="mailto:contact@ciphermemories.com"
+                                class="text-white-50 text-decoration-none small d-flex align-items-center"
+                                style="transition: all 0.3s ease;"
+                                onmouseover="this.style.color='rgba(255, 255, 255, 0.9)'"
+                                onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'">
                                 <i class="fas fa-envelope me-2"></i>
                                 Contact
                             </a>
@@ -178,12 +182,10 @@
                         <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
                     </div>
                     <h4 class="mb-4">Email Verified Successfully!</h4>
-                    <p class="mb-4">Your account has been verified. You can now login and start encrypting your memories.</p>
-                    <button class="btn btn-outline-light px-4"
-                            hx-get="/login"
-                            hx-target="body"
-                            hx-push-url="true"
-                            hx-swap="innerHTML">
+                    <p class="mb-4">Your account has been verified. You can now login and start encrypting your
+                        memories.</p>
+                    <button class="btn btn-outline-light px-4" hx-get="/login" hx-target="body" hx-push-url="true"
+                        hx-swap="innerHTML">
                         Go to Login
                     </button>
                 </div>
@@ -213,23 +215,15 @@
             <div class="modal-content bg-dark text-white border-0">
                 <div class="modal-body text-center p-5">
                     <div class="mb-4">
-                        <img src="/static/assets/logo.svg" 
-                             alt="Cipher Memories" 
-                             class="logo mb-3" 
-                             style="width: 80px;">
+                        <img src="/static/assets/logo.svg" alt="Cipher Memories" class="logo mb-3" style="width: 80px;">
                         <h4 class="brand-text">NEW PASSWORD</h4>
                     </div>
 
                     <!-- Mensagem de erro/sucesso -->
                     <div id="resetMessage" class="alert d-none mb-3" role="alert"></div>
 
-                    <form id="resetPasswordForm"
-                        hx-post="/reset-password"
-                        hx-target="#resetMessage"
-                        hx-swap="innerHTML"
-                        hx-indicator="#resetSpinner"
-                        hx-disabled-elt="#resetButton"
-                        hx-on::after-request="if(event.detail.successful) {
+                    <form id="resetPasswordForm" hx-post="/reset-password" hx-target="#resetMessage" hx-swap="innerHTML"
+                        hx-indicator="#resetSpinner" hx-disabled-elt="#resetButton" hx-on::after-request="if(event.detail.successful) {
                             document.getElementById('resetMessage').classList.remove('d-none', 'alert-danger');
                             document.getElementById('resetMessage').classList.add('alert-success');
                             document.getElementById('resetMessage').innerHTML = 'Password reset successful! Redirecting to login...';
@@ -242,22 +236,24 @@
                         }">
 
                         <input type="hidden" name="token" value="{{.Token}}">
-                        
+
                         <div class="mb-3">
-                            <input type="password" name="password" class="form-control btn-light" placeholder="New Password" required>
+                            <input type="password" name="password" class="form-control btn-light"
+                                placeholder="New Password" required>
                             <small class="text-white-50">
-                                Must contain at least 8 characters, including uppercase, lowercase, number and special character
+                                Must contain at least 8 characters, including uppercase, lowercase, number and special
+                                character
                             </small>
                         </div>
                         <div class="mb-4">
-                            <input type="password" name="confirm_password" class="form-control btn-light" placeholder="Confirm New Password" required>
+                            <input type="password" name="confirm_password" class="form-control btn-light"
+                                placeholder="Confirm New Password" required>
                         </div>
-                        <button type="submit"
-                                id="resetButton"
-                                class="btn btn-outline-light w-100 mb-3">
+                        <button type="submit" id="resetButton" class="btn btn-outline-light w-100 mb-3">
                             <span>Reset Password</span>
                             <span id="resetSpinner" class="htmx-indicator">
-                                <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+                                <span class="spinner-border spinner-border-sm ms-2" role="status"
+                                    aria-hidden="true"></span>
                             </span>
                         </button>
                     </form>
@@ -270,9 +266,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <script>
+        document.body.addEventListener("pointermove", (e) => {
+            const { currentTarget: el, clientX: x, clientY: y } = e;
+            const { top: t, left: l, width: w, height: h } = el.getBoundingClientRect();
+            el.style.setProperty('--posX', x - l - w / 2);
+            el.style.setProperty('--posY', y - t - h / 2);
+        })
         // Check URL parameters for verification status and reset token
         const urlParams = new URLSearchParams(window.location.search);
-        
+
         if (urlParams.get('verified') === 'true') {
             // Show success modal
             const modal = new bootstrap.Modal(document.getElementById('verificationModal'));
@@ -283,8 +285,8 @@
             // Show error modal with appropriate message
             const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
             const errorMessage = document.getElementById('errorMessage');
-            
-            switch(urlParams.get('error')) {
+
+            switch (urlParams.get('error')) {
                 case 'invalid_token':
                     errorMessage.textContent = 'The verification link is invalid or has expired.';
                     break;
@@ -294,7 +296,7 @@
                 default:
                     errorMessage.textContent = 'An error occurred during verification. Please try again.';
             }
-            
+
             errorModal.show();
             // Clean URL
             window.history.replaceState({}, document.title, "/");
@@ -308,10 +310,10 @@
         }
 
         // Password match validation for reset form
-        document.getElementById('resetPasswordForm')?.addEventListener('submit', function(evt) {
+        document.getElementById('resetPasswordForm')?.addEventListener('submit', function (evt) {
             const password = this.querySelector('input[name="password"]').value;
             const confirmPassword = this.querySelector('input[name="confirm_password"]').value;
-            
+
             if (password !== confirmPassword) {
                 evt.preventDefault();
                 const messageDiv = document.getElementById('resetMessage');
