@@ -266,27 +266,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <script>
-        // Check if device is mobile
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (!isMobile) {
-            // Desktop: Mouse movement effect
-            document.addEventListener("mousemove", (e) => {
-                const x = e.clientX;
-                const y = e.clientY;
-                document.body.style.setProperty('--posX', x);
-                document.body.style.setProperty('--posY', y);
-            });
-        } else {
-            // Mobile: Scroll effect
-            window.addEventListener('scroll', () => {
-                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-                const currentScroll = window.scrollY;
-                const scrollPercent = (currentScroll / maxScroll) * 100;
-                document.documentElement.style.setProperty('--scroll', scrollPercent);
-            });
-        }
-
         // Check URL parameters for verification status and reset token
         const urlParams = new URLSearchParams(window.location.search);
 
