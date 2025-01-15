@@ -422,7 +422,7 @@ body {
 .orb-7 {
     width: 280px;
     height: 280px;
-    background: radial-gradient(circle at 40% 40%, rgba(255, 217, 0, 0.907), rgba(255, 215, 0, 0) 70%);
+    background: radial-gradient(circle at 40% 40%, rgba(226, 63, 63, 0.82), rgba(255, 215, 0, 0) 70%);
     animation: floatingOrb7 38s ease-in-out infinite;
     opacity: 0.25;
 }
