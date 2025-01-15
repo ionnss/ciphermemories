@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"ciphermemories/db"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -128,11 +129,47 @@ func SettingsPage(w http.ResponseWriter, r *http.Request) {
 
 // MemoriesManagerPage serves the memories manager page/partial
 func MemoriesManagerPage(w http.ResponseWriter, r *http.Request) {
-	if !ValidateSession(w, r) {
-		http.Redirect(w, r, "/dashboard", http.StatusFound)
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
 	}
-	http.ServeFile(w, r, "templates/memories_manager.html")
+
+	// Check if this is a setup request
+	if r.Method == "POST" {
+		SetupMemoriesManager(w, r)
+		return
+	}
+
+	// Check if user has memories manager
+	var hasManager bool
+	err := db.DB.QueryRow(`
+		SELECT has_memories_manager 
+		FROM users 
+		WHERE id = $1
+	`, user.ID).Scan(&hasManager)
+
+	if err != nil {
+		http.Error(w, "Error checking memories manager status", http.StatusInternalServerError)
+		return
+	}
+
+	// Update user struct with memories manager status
+	user.HasMemoriesManager = hasManager
+
+	// Prepare data for the template
+	data := map[string]interface{}{
+		"ViewingUser": user,
+		"CurrentPage": "memories-manager",
+	}
+
+	// Render the dashboard template
+	err = pageTemplates.ExecuteTemplate(w, "dashboard.html", data)
+	if err != nil {
+		fmt.Printf("Error rendering dashboard: %v\n", err)
+		http.Error(w, "Error rendering dashboard", http.StatusInternalServerError)
+		return
+	}
 }
 
 // MemoriesManagerSetupPage serves the memories manager setup page/partial

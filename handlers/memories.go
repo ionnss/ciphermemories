@@ -379,6 +379,7 @@ func CheckNewMemories(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `{"count": %d}`, count)
 }
 
+// PrivateMemoriesManager serves the memories manager page/partial
 func PrivateMemoriesManager(w http.ResponseWriter, r *http.Request) {
 	user := GetUserFromSession(r)
 	if user == nil {
@@ -405,19 +406,27 @@ func PrivateMemoriesManager(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Prepare data for the template
+	data := map[string]interface{}{
+		"ViewingUser": user,
+		"CurrentPage": "memories-manager",
+	}
+
 	// If user doesn't have memories manager, show setup page
 	if !hasManager {
-		err = pageTemplates.ExecuteTemplate(w, "memories_manager_setup.html", nil)
+		err = pageTemplates.ExecuteTemplate(w, "dashboard.html", data)
 		if err != nil {
-			http.Error(w, "Error rendering setup page", http.StatusInternalServerError)
+			http.Error(w, "Error rendering dashboard", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
 
 	// If user has memories manager, show the manager page
-	err = pageTemplates.ExecuteTemplate(w, "memories_manager.html", nil)
+	err = pageTemplates.ExecuteTemplate(w, "dashboard.html", data)
 	if err != nil {
-		http.Error(w, "Error rendering manager page", http.StatusInternalServerError)
+		http.Error(w, "Error rendering dashboard", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -522,15 +531,8 @@ func ValidateMemoriesManagerPassword(w http.ResponseWriter, r *http.Request) {
 	session, _ := Store.Get(r, "session-ciphermemories")
 	session.Values["memories_access"] = true
 	session.Values["memories_access_time"] = time.Now().Unix()
+	session.Save(r, w)
 
-	err = session.Save(r, w)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, `<div class="alert alert-danger">Error creating session</div>`)
-		return
-	}
-
-	// Return success
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, `<div class="alert alert-success">Access granted</div>`)
 }

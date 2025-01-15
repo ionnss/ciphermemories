@@ -555,7 +555,7 @@ func GetUserFromSession(r *http.Request) *models.User {
 	// Get user from database
 	var user models.User
 	err = db.DB.QueryRow(`
-		SELECT id, username, email, avatar_url, created_at, updated_at
+		SELECT id, username, email, avatar_url, created_at, updated_at, has_memories_manager
 		FROM users 
 		WHERE id = $1
 	`, userID).Scan(
@@ -565,6 +565,7 @@ func GetUserFromSession(r *http.Request) *models.User {
 		&user.AvatarURL,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.HasMemoriesManager,
 	)
 
 	if err != nil {

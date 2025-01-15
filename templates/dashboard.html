@@ -34,103 +34,111 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Create Memory -->
-        <div class="create-memory-card">
-            <div class="card">
-                <div class="card-body">
-                    <form id="createMemoryForm">
-                        <!-- Área para mensagens -->
-                        <div id="form-messages" class="alert alert-danger d-none mb-3"></div>
+        {{if eq .CurrentPage "memories-manager"}}
+            {{if .ViewingUser.HasMemoriesManager}}
+                {{template "memories_manager" .}}
+            {{else}}
+                {{template "memories_manager_setup" .}}
+            {{end}}
+        {{else}}
+            <!-- Create Memory -->
+            <div class="create-memory-card">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="createMemoryForm">
+                            <!-- Área para mensagens -->
+                            <div id="form-messages" class="alert alert-danger d-none mb-3"></div>
 
-                        <input type="text" name="title" placeholder="Title" class="form-control mb-3">
-                        <textarea class="form-control mb-3" name="content" placeholder="We shall remember..."
-                            rows="3"></textarea>
+                            <input type="text" name="title" placeholder="Title" class="form-control mb-3">
+                            <textarea class="form-control mb-3" name="content" placeholder="We shall remember..."
+                                rows="3"></textarea>
 
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-icon" title="Toggle Privacy"
-                                    onclick="toggleLock(this)">
-                                    <i class="fas fa-lock"></i>
-                                </button>
-                                <input type="hidden" name="status" value="private">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-icon" title="Toggle Privacy"
+                                        onclick="toggleLock(this)">
+                                        <i class="fas fa-lock"></i>
+                                    </button>
+                                    <input type="hidden" name="status" value="private">
 
-                                <button type="button" class="btn btn-icon btn-toggle-paid" title="Toggle Paid"
-                                    onclick="togglePaid(this)">
-                                    <i class="fas fa-dollar-sign text-danger"></i>
-                                </button>
-                                <input type="hidden" name="is_paid" value="false">
-                                <input type="number" name="price" value="10" class="form-control d-none"
-                                    style="width: 100px;" min="10">
+                                    <button type="button" class="btn btn-icon btn-toggle-paid" title="Toggle Paid"
+                                        onclick="togglePaid(this)">
+                                        <i class="fas fa-dollar-sign text-danger"></i>
+                                    </button>
+                                    <input type="hidden" name="is_paid" value="false">
+                                    <input type="number" name="price" value="10" class="form-control d-none"
+                                        style="width: 100px;" min="10">
 
-                                <script>
-                                    function toggleLock(button) {
-                                        const icon = button.querySelector('i');
-                                        const input = button.nextElementSibling;
-                                        const paidButton = button.nextElementSibling.nextElementSibling;
-                                        const priceInput = paidButton.nextElementSibling.nextElementSibling;
+                                    <script>
+                                        function toggleLock(button) {
+                                            const icon = button.querySelector('i');
+                                            const input = button.nextElementSibling;
+                                            const paidButton = button.nextElementSibling.nextElementSibling;
+                                            const priceInput = paidButton.nextElementSibling.nextElementSibling;
 
-                                        if (icon.classList.contains('fa-lock')) {
-                                            icon.classList.replace('fa-lock', 'fa-lock-open');
-                                            button.title = "Public Memory";
-                                            input.value = "public";
-                                            // Hide the paid button and price input when public
-                                            paidButton.classList.add('d-none');
-                                            priceInput.classList.add('d-none');
-                                        } else {
-                                            icon.classList.replace('fa-lock-open', 'fa-lock');
-                                            button.title = "Private Memory";
-                                            input.value = "private";
-                                            // Show the paid button when private
-                                            paidButton.classList.remove('d-none');
+                                            if (icon.classList.contains('fa-lock')) {
+                                                icon.classList.replace('fa-lock', 'fa-lock-open');
+                                                button.title = "Public Memory";
+                                                input.value = "public";
+                                                // Hide the paid button and price input when public
+                                                paidButton.classList.add('d-none');
+                                                priceInput.classList.add('d-none');
+                                            } else {
+                                                icon.classList.replace('fa-lock-open', 'fa-lock');
+                                                button.title = "Private Memory";
+                                                input.value = "private";
+                                                // Show the paid button when private
+                                                paidButton.classList.remove('d-none');
+                                            }
                                         }
-                                    }
 
-                                    function togglePaid(button) {
-                                        const icon = button.querySelector('i');
-                                        const isPaidInput = button.nextElementSibling;
-                                        const priceInput = isPaidInput.nextElementSibling;
+                                        function togglePaid(button) {
+                                            const icon = button.querySelector('i');
+                                            const isPaidInput = button.nextElementSibling;
+                                            const priceInput = isPaidInput.nextElementSibling;
 
-                                        if (icon.classList.contains('text-danger')) {
-                                            icon.classList.replace('text-danger', 'text-success');
-                                            button.title = "Paid Memory";
-                                            isPaidInput.value = "true";
-                                            priceInput.classList.remove('d-none');
-                                        } else {
-                                            icon.classList.replace('text-success', 'text-danger');
-                                            button.title = "Free Memory";
-                                            isPaidInput.value = "false";
-                                            priceInput.value = "10";
-                                            priceInput.classList.add('d-none');
+                                            if (icon.classList.contains('text-danger')) {
+                                                icon.classList.replace('text-danger', 'text-success');
+                                                button.title = "Paid Memory";
+                                                isPaidInput.value = "true";
+                                                priceInput.classList.remove('d-none');
+                                            } else {
+                                                icon.classList.replace('text-success', 'text-danger');
+                                                button.title = "Free Memory";
+                                                isPaidInput.value = "false";
+                                                priceInput.value = "10";
+                                                priceInput.classList.add('d-none');
+                                            }
                                         }
-                                    }
-                                </script>
+                                    </script>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Cipher Memory</button>
                             </div>
-                            <button type="submit" class="btn btn-primary">Cipher Memory</button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Memories Feed -->
-        <div id="memoriesFeed">
-            <!-- Banner para novas memórias -->
-            <div class="new-memories-banner d-none" 
-                 hx-get="/memories" 
-                 hx-target="#memoriesList" 
-                 hx-swap="innerHTML"
-                 hx-trigger="click">
-                <span id="newMemoriesCount">0</span> new ciphered memories
-            </div>
+            <!-- Memories Feed -->
+            <div id="memoriesFeed">
+                <!-- Banner para novas memórias -->
+                <div class="new-memories-banner d-none" 
+                     hx-get="/memories" 
+                     hx-target="#memoriesList" 
+                     hx-swap="innerHTML"
+                     hx-trigger="click">
+                    <span id="newMemoriesCount">0</span> new ciphered memories
+                </div>
 
-            <!-- Lista de memórias -->
-            <div id="memoriesList"
-                 hx-get="/memories"
-                 hx-trigger="revealed"
-                 hx-swap="beforeend">
-                <!-- As memórias serão carregadas aqui -->
+                <!-- Lista de memórias -->
+                <div id="memoriesList"
+                     hx-get="/memories"
+                     hx-trigger="revealed"
+                     hx-swap="beforeend">
+                    <!-- As memórias serão carregadas aqui -->
+                </div>
             </div>
-        </div>
+        {{end}}
     </main>
 
     <!-- Script for messages -->

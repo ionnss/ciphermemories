@@ -474,7 +474,8 @@ func GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
 
 	err := db.DB.QueryRow(`
-		SELECT id, username, email, COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url, created_at, updated_at
+		SELECT id, username, email, COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url, 
+		       created_at, updated_at, has_memories_manager
 		FROM users 
 		WHERE username = $1
 	`, username).Scan(
@@ -484,6 +485,7 @@ func GetUserByUsername(username string) (*models.User, error) {
 		&user.AvatarURL,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.HasMemoriesManager,
 	)
 
 	if err != nil {
@@ -497,7 +499,8 @@ func GetUserByID(userID int64) (*models.User, error) {
 	var user models.User
 
 	err := db.DB.QueryRow(`
-		SELECT id, username, email, COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url, created_at, updated_at
+		SELECT id, username, email, COALESCE(avatar_url, '/static/assets/default-avatar.png') as avatar_url, 
+		       created_at, updated_at, has_memories_manager
 		FROM users 
 		WHERE id = $1
 	`, userID).Scan(
@@ -507,6 +510,7 @@ func GetUserByID(userID int64) (*models.User, error) {
 		&user.AvatarURL,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.HasMemoriesManager,
 	)
 
 	if err != nil {
