@@ -280,8 +280,10 @@
         } else {
             // Mobile: Scroll effect
             window.addEventListener('scroll', () => {
-                const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-                document.body.style.setProperty('--scroll', scrollPercent);
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                const currentScroll = window.scrollY;
+                const scrollPercent = (currentScroll / maxScroll) * 100;
+                document.documentElement.style.setProperty('--scroll', scrollPercent);
             });
         }
 
