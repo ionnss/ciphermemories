@@ -82,21 +82,6 @@
     </div>
 
     <script>
-        function togglePassword(inputName) {
-            const input = document.querySelector(`input[name="${inputName}"]`);
-            const icon = input.nextElementSibling.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
         const registerForm = document.getElementById('registerForm');
         const registerButton = document.getElementById('registerButton');
 
@@ -106,37 +91,19 @@
             registerButton.classList.add('disabled');
         });
 
-        // Reabilita o botão após a resposta (sucesso ou erro)
+        // Reabilita o botão após o envio
         registerForm.addEventListener('htmx:afterRequest', function(evt) {
-            // Só reabilita se não for sucesso (pois em caso de sucesso vamos redirecionar)
-            if (!evt.detail.successful) {
-                registerButton.disabled = false;
-                registerButton.classList.remove('disabled');
-            }
+            registerButton.disabled = false;
+            registerButton.classList.remove('disabled');
 
-            const messageDiv = document.getElementById('message');
-            messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
-            
-            try {
-                // Tenta fazer o parse da resposta
-                const response = JSON.parse(evt.detail.xhr.response);
-                
-                if (response.success) {
-                    messageDiv.classList.add('alert-success');
-                    // Se o registro foi bem sucedido, redireciona para login após 2 segundos
+            // Se o registro foi bem sucedido
+            if (evt.detail.successful) {
+                const messageDiv = document.getElementById('message');
+                if (messageDiv.textContent.includes('Registration successful')) {
                     setTimeout(() => {
-                        htmx.ajax('GET', '/login', { target: 'body', swap: 'innerHTML', pushUrl: true });
+                        window.location.href = '/login';
                     }, 2000);
-                } else {
-                    messageDiv.classList.add('alert-danger');
                 }
-                
-                messageDiv.textContent = response.message;
-            } catch (error) {
-                // Se houver erro no parse do JSON, mostra mensagem genérica
-                messageDiv.classList.add('alert-danger');
-                messageDiv.textContent = 'An error occurred. Please try again later.';
-                console.error('Error parsing response:', error);
             }
         });
 
@@ -157,14 +124,6 @@
             // Limpa mensagens anteriores
             const messageDiv = document.getElementById('message');
             messageDiv.classList.add('d-none');
-        });
-
-        // Adiciona handler para erros de rede/servidor
-        document.getElementById('registerForm').addEventListener('htmx:error', function(evt) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.classList.remove('d-none');
-            messageDiv.classList.add('alert-danger');
-            messageDiv.textContent = 'Server error. Please try again later.';
         });
     </script>
 </body>
