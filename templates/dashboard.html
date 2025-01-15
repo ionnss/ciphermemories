@@ -56,22 +56,42 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-icon" title="Toggle Privacy"
-                                        onclick="toggleLock(this)">
+                                        onclick="toggleLock(this)"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top"
+                                        data-bs-custom-class="custom-tooltip"
+                                        data-bs-html="true"
+                                        data-bs-title="Private memories are encrypted and only visible to you. Public memories can be seen by everyone.<button type='button' class='btn-close btn-close-white tooltip-close' onclick='this.closest(&quot;.tooltip&quot;).remove()'></button>">
                                         <i class="fas fa-lock"></i>
+                                        <i class="fas fa-circle-info ms-1 text-danger small"></i>
                                     </button>
                                     <input type="hidden" name="status" value="private">
 
                                     <button type="button" class="btn btn-icon btn-toggle-paid" title="Toggle Paid"
-                                        onclick="togglePaid(this)">
+                                        onclick="togglePaid(this)"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        data-bs-custom-class="custom-tooltip"
+                                        data-bs-html="true"
+                                        data-bs-title="Paid memories can be purchased by other users as way to transform this memory into public and support the Cipher Memories project.<button type='button' class='btn-close btn-close-white tooltip-close' onclick='this.closest(&quot;.tooltip&quot;).remove()'></button>">
                                         <i class="fas fa-dollar-sign text-danger"></i>
+                                        <i class="fas fa-circle-info ms-1 text-danger small"></i>
                                     </button>
                                     <input type="hidden" name="is_paid" value="false">
                                     <input type="number" name="price" value="10" class="form-control d-none"
                                         style="width: 100px;" min="10">
 
                                     <script>
+                                        // Initialize tooltips
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                                            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                                return new bootstrap.Tooltip(tooltipTriggerEl);
+                                            });
+                                        });
+
                                         function toggleLock(button) {
-                                            const icon = button.querySelector('i');
+                                            const icon = button.querySelector('i.fa-lock, i.fa-lock-open');
                                             const input = button.nextElementSibling;
                                             const paidButton = button.nextElementSibling.nextElementSibling;
                                             const priceInput = paidButton.nextElementSibling.nextElementSibling;
@@ -93,7 +113,7 @@
                                         }
 
                                         function togglePaid(button) {
-                                            const icon = button.querySelector('i');
+                                            const icon = button.querySelector('i.fa-dollar-sign');
                                             const isPaidInput = button.nextElementSibling;
                                             const priceInput = isPaidInput.nextElementSibling;
 
@@ -368,6 +388,46 @@
             }
         });
     </script>
+
+    <style>
+        .custom-tooltip {
+            --bs-tooltip-bg: #4a2b8a;
+            --bs-tooltip-color: #fff;
+            --bs-tooltip-opacity: 1;
+            font-size: 0.85rem;
+            max-width: 250px;
+            padding-right: 25px;
+            position: relative;
+        }
+
+        .btn-icon .fa-circle-info {
+            opacity: 0.7;
+            font-size: 0.8em;
+            vertical-align: super;
+        }
+
+        .btn-icon:hover .fa-circle-info {
+            opacity: 1;
+        }
+
+        .tooltip-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 2px;
+            font-size: 0.7rem;
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .tooltip-close:hover {
+            opacity: 1;
+        }
+
+        .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+    </style>
 </body>
 
 </html>
